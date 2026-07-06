@@ -52,16 +52,16 @@ npmではなくpnpmを採用。理由と設定（`pnpm-workspace.yaml`）:
 
 ## 決定事項
 
-| 項目 | 決定 |
-|---|---|
-| ドメイン | **kinakomochio.dev**（仮。取得時に確定） |
-| パッケージマネージャ | pnpm（下記セクション参照） |
-| mermaid | remarkプラグインで `<pre class="mermaid">` に変換 → クライアント側でSVG化。mermaidはnpmでバージョン固定・バンドル（CDN不使用＝サプライチェーン対策）。ブロックがあるページのみ動的import |
-| コードハイライト | Astro標準（Shiki） |
-| RSS | `@astrojs/rss`（`/rss.xml`） |
-| CI | GitHub Actions で `pnpm build` チェック（`.github/workflows/ci.yml`） |
-| Zenn連携 | **やらない**（本ブログに一本化。`zenn-blog/` の資産は移植済みで役目終了） |
-| 実装上の注意 | `.astro` のHTMLコメントは本番出力に残る。TODOはfrontmatter側にJSコメントで書く |
+| 項目                 | 決定                                                                                                                                                                                     |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ドメイン             | **kinakomochio.dev**（仮。取得時に確定）                                                                                                                                                 |
+| パッケージマネージャ | pnpm（下記セクション参照）                                                                                                                                                               |
+| mermaid              | remarkプラグインで `<pre class="mermaid">` に変換 → クライアント側でSVG化。mermaidはnpmでバージョン固定・バンドル（CDN不使用＝サプライチェーン対策）。ブロックがあるページのみ動的import |
+| コードハイライト     | Astro標準（Shiki）                                                                                                                                                                       |
+| RSS                  | `@astrojs/rss`（`/rss.xml`）                                                                                                                                                             |
+| CI                   | GitHub Actions で `pnpm build` チェック（`.github/workflows/ci.yml`）                                                                                                                    |
+| Zenn連携             | **やらない**（本ブログに一本化。`zenn-blog/` の資産は移植済みで役目終了）                                                                                                                |
+| 実装上の注意         | `.astro` のHTMLコメントは本番出力に残る。TODOはfrontmatter側にJSコメントで書く                                                                                                           |
 
 ## セットアップ手順（残り）
 
@@ -81,11 +81,11 @@ npmではなくpnpmを採用。理由と設定（`pnpm-workspace.yaml`）:
 
 ## 未決事項（残り）
 
-| 項目 | 候補・メモ |
-|---|---|
-| デザイン/テーマ | 現状素のCSS最小限。自作 or Astroテーマ導入 |
-| OG画像 | 自動生成（satori等）は後回しでよい |
-| アクセス解析 | Cloudflare Web Analytics（無料・Cookieレス）第一候補。Pages接続後にトークン取得 |
-| 問い合わせ方式 | Google Forms 埋め込みが最小工数（推奨） |
-| textlint / pnpm audit | 執筆自動化フェーズ2でCIに追加 |
-| ドラフト生成スキル | `/write-draft`。手動で2〜3本書いてテンプレを固めてから着手 |
+| 項目                  | 候補・メモ                                                                      |
+| --------------------- | ------------------------------------------------------------------------------- |
+| デザイン/テーマ       | 現状素のCSS最小限。自作 or Astroテーマ導入                                      |
+| OG画像                | 自動生成（satori等）は後回しでよい                                              |
+| アクセス解析          | Cloudflare Web Analytics（無料・Cookieレス）第一候補。Pages接続後にトークン取得 |
+| 問い合わせ方式        | Google Forms 埋め込みが最小工数（推奨）                                         |
+| textlint / pnpm audit | 執筆自動化フェーズ2でCIに追加                                                   |
+| ドラフト生成スキル    | `/write-draft`。手動で2〜3本書いてテンプレを固めてから着手                      |

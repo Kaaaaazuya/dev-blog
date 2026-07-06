@@ -1,7 +1,7 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
-import sitemap from '@astrojs/sitemap';
-import { visit } from 'unist-util-visit';
+import { defineConfig } from "astro/config";
+import sitemap from "@astrojs/sitemap";
+import { visit } from "unist-util-visit";
 
 /**
  * ```mermaid コードブロックを <pre class="mermaid"> に変換する remark プラグイン。
@@ -9,21 +9,25 @@ import { visit } from 'unist-util-visit';
  * CDNは使わずnpmでバージョン固定した mermaid をバンドルする（サプライチェーン対策）。
  */
 function remarkMermaid() {
+  /** @param {import('mdast').Root} tree */
   return (tree) => {
-    visit(tree, 'code', (node) => {
-      if (node.lang !== 'mermaid') return;
+    visit(tree, "code", (node) => {
+      if (node.lang !== "mermaid") return;
       const escaped = node.value
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;');
-      node.type = 'html';
-      node.value = `<pre class="mermaid">${escaped}</pre>`;
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+      // code ノードを html ノードへ置換（型上は別ノードなので Object.assign で変異させる）
+      Object.assign(node, {
+        type: "html",
+        value: `<pre class="mermaid">${escaped}</pre>`,
+      });
     });
   };
 }
 
 export default defineConfig({
-  site: 'https://kinakomochio.dev', // 仮ドメイン。正式取得後に確定
+  site: "https://kinakomochio.dev", // 仮ドメイン。正式取得後に確定
   integrations: [sitemap()],
   markdown: {
     remarkPlugins: [remarkMermaid],

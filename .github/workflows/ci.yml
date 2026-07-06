@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,5 +18,34 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      # TODO: 執筆自動化フェーズ2で textlint / リンク切れチェック / pnpm audit を追加
+      - name: Format check (Prettier)
+        run: pnpm format:check
+      - name: Lint (ESLint, 警告0)
+        run: pnpm lint
+      - name: Type check (astro check)
+        run: pnpm typecheck
+      - name: Build
+        run: pnpm build
+
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaksは全履歴をスキャンする
+      - name: Secret scan (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Dependency audit (high以上で失敗)
+        run: pnpm audit --audit-level=high

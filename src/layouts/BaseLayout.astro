@@ -7,8 +7,9 @@ interface Props {
   title: string;
   description?: string;
 }
-const { title, description = 'AIプロダクトの設計と実装を、作って学んだ記録' } = Astro.props;
-const SITE_NAME = 'kinakomochio.dev'; // 仮。正式決定したら変更
+const { title, description = "AIプロダクトの設計と実装を、作って学んだ記録" } =
+  Astro.props;
+const SITE_NAME = "kinakomochio.dev"; // 仮。正式決定したら変更
 ---
 
 <!doctype html>
@@ -19,7 +20,12 @@ const SITE_NAME = 'kinakomochio.dev'; // 仮。正式決定したら変更
     <title>{title} | {SITE_NAME}</title>
     <meta name="description" content={description} />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="alternate" type="application/rss+xml" title={SITE_NAME} href="/rss.xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={SITE_NAME}
+      href="/rss.xml"
+    />
   </head>
   <body>
     <header>
@@ -45,8 +51,28 @@ const SITE_NAME = 'kinakomochio.dev'; // 仮。正式決定したら変更
 
 <style is:global>
   /* 最小限のスタイル。テーマ/デザインは未決事項（docs/architecture.md） */
-  body { max-width: 760px; margin: 0 auto; padding: 1rem; font-family: sans-serif; line-height: 1.8; }
-  nav { display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #ddd; }
-  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #ddd; font-size: 0.85rem; }
-  pre { padding: 1rem; overflow-x: auto; border-radius: 6px; }
+  body {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 1rem;
+    font-family: sans-serif;
+    line-height: 1.8;
+  }
+  nav {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #ddd;
+  }
+  footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid #ddd;
+    font-size: 0.85rem;
+  }
+  pre {
+    padding: 1rem;
+    overflow-x: auto;
+    border-radius: 6px;
+  }
 </style>

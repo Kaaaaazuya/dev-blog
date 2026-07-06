@@ -1,12 +1,17 @@
 {
-  "name": "blog",
+  "name": "dev-blog",
   "type": "module",
   "private": true,
   "//": "pnpm利用。バージョン固定は `corepack use pnpm@latest` で packageManager フィールドを自動追記",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "astro check",
+    "prepare": "simple-git-hooks"
   },
   "dependencies": {
     "astro": "^5.0.0",
@@ -14,5 +19,31 @@
     "@astrojs/sitemap": "^3.0.0",
     "mermaid": "^11.0.0",
     "unist-util-visit": "^5.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.0",
+    "@types/mdast": "^4.0.0",
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-astro": "^1.0.0",
+    "lint-staged": "^16.0.0",
+    "prettier": "^3.0.0",
+    "prettier-plugin-astro": "^0.14.0",
+    "simple-git-hooks": "^2.0.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.0.0"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged && gitleaks git --staged --redact --no-banner",
+    "pre-push": "pnpm typecheck"
+  },
+  "lint-staged": {
+    "*.{astro,js,mjs,ts}": [
+      "prettier --write",
+      "eslint --fix --max-warnings=0"
+    ],
+    "*.{md,json,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }

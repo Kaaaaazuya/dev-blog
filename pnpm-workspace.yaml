@@ -10,4 +10,6 @@ minimumReleaseAge: 1440
 # 必要なものだけ明示的に許可する（`pnpm approve-builds` で対話的に追加可能）
 allowBuilds:
   esbuild: true # Astroのビルドに必要
-  sharp: true   # Astroの画像最適化に必要
+  sharp: true # Astroの画像最適化に必要
+  # simple-git-hooks の postinstall は不要（プロジェクトの prepare スクリプトで明示的に登録する）
+  simple-git-hooks: false

@@ -1,11 +1,14 @@
 ---
-import { getCollection, render } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import AdSlot from '../../components/AdSlot.astro';
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AdSlot from "../../components/AdSlot.astro";
 
 export async function getStaticPaths() {
   // 本番はdraft除外、devプレビューではdraftも表示する
-  const posts = await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft);
+  const posts = await getCollection(
+    "blog",
+    ({ data }) => import.meta.env.DEV || !data.draft,
+  );
   return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
 }
 
@@ -32,15 +35,19 @@ const { Content } = await render(post);
 </BaseLayout>
 
 <style>
-  .tag { margin-left: 0.5rem; font-size: 0.85rem; color: #666; }
+  .tag {
+    margin-left: 0.5rem;
+    font-size: 0.85rem;
+    color: #666;
+  }
 </style>
 
 <script>
   // mermaid ブロックがあるページだけ動的import（チャンク分割されるので他ページに影響なし）
-  const blocks = document.querySelectorAll('pre.mermaid');
+  const blocks = document.querySelectorAll<HTMLElement>("pre.mermaid");
   if (blocks.length > 0) {
-    const { default: mermaid } = await import('mermaid');
-    mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
+    const { default: mermaid } = await import("mermaid");
+    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
     await mermaid.run({ nodes: [...blocks] });
   }
 </script>

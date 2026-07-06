@@ -24,3 +24,18 @@ pnpm dev   # http://localhost:4321 でサンプル記事の表示確認
 cp templates/article-template.md src/content/blog/ai-arch-01-llm-responsibility.md
 # draft: true のまま執筆 → レビュー後 false にして merge → 自動デプロイ
 ```
+
+## 品質ゲート
+
+**前提**: `brew install gitleaks`（秘密情報スキャン。未インストールだとpre-commitが失敗する）
+
+| タイミング    | 実行内容                                                                                |
+| ------------- | --------------------------------------------------------------------------------------- |
+| pre-commit    | lint-staged（Prettier + ESLint --fix、警告0）→ gitleaks（staged差分の秘密情報スキャン） |
+| pre-push      | `pnpm typecheck`（astro check、strict設定）                                             |
+| CI (quality)  | format:check / lint / typecheck / build                                                 |
+| CI (security) | gitleaks（全履歴）/ `pnpm audit --audit-level=high` / Dependabot（週次）                |
+
+- git hooksは `pnpm install` 時に `prepare` スクリプト（simple-git-hooks）が自動登録する
+- 手動実行: `pnpm format` / `pnpm lint` / `pnpm typecheck`
+- 型チェックは `astro/tsconfigs/strict` ベース（`tsconfig.json`）
