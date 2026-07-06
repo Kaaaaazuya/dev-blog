@@ -1,0 +1,2 @@
+# TODO: AdSense承認後に以下の形式で記載する
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0

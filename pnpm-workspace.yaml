@@ -1,0 +1,13 @@
+# pnpm設定（サプライチェーン攻撃対策）
+# pnpm 11 では以下がデフォルトだが、意図を明示するため記載する。
+# pnpm 10 を使う場合も同名設定（onlyBuiltDependencies 等）で同等の防御が可能。
+
+# 公開から24時間未満のバージョンをインストールしない
+# （ハイジャックされたリリースがコミュニティに検知されるまでの猶予）
+minimumReleaseAge: 1440
+
+# 依存パッケージの install/postinstall スクリプトは既定で全ブロック。
+# 必要なものだけ明示的に許可する（`pnpm approve-builds` で対話的に追加可能）
+allowBuilds:
+  esbuild: true # Astroのビルドに必要
+  sharp: true   # Astroの画像最適化に必要

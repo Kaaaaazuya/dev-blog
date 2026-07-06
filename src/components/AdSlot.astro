@@ -1,0 +1,39 @@
+---
+/**
+ * 広告スロット。AdSense審査通過までは何も描画しない。
+ * 有効化手順:
+ *   1. ADS_ENABLED を true に
+ *   2. CLIENT_ID を自分の ca-pub-XXXX に
+ *   3. BaseLayout.astro の <head> にサイト全体タグを追加
+ *   4. public/ads.txt を記入
+ * 記事レイアウト側に <AdSlot slot="..." /> を置けば審査後に自動で広告が出る。
+ */
+interface Props {
+  slot?: string; // AdSenseの広告ユニットID
+}
+const ADS_ENABLED = false; // TODO: 審査通過後に true
+const CLIENT_ID = 'ca-pub-XXXXXXXXXXXXXXXX'; // TODO
+const { slot = '' } = Astro.props;
+---
+
+{
+  ADS_ENABLED && (
+    <div class="ad-container">
+      <ins
+        class="adsbygoogle"
+        style="display:block"
+        data-ad-client={CLIENT_ID}
+        data-ad-slot={slot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+      <script is:inline>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  )
+}
+
+<style>
+  .ad-container { margin: 2rem 0; min-height: 90px; }
+</style>
