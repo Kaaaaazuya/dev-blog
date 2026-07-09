@@ -9,7 +9,7 @@ export async function GET(context: APIContext) {
   return rss({
     title: "kinakomochio.dev", // 仮
     description: "AIプロダクトの設計と実装を、作って学んだ記録",
-    site: context.site ?? "https://kinakomochio.pages.dev",
+    site: context.site ?? "https://kinakomochio.yk3kzy.workers.dev",
     items: posts.map((post) => ({
       title: post.data.title,
       description: post.data.description,
