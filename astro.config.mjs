@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { visit } from "unist-util-visit";
+import { unified } from "@astrojs/markdown-remark";
 
 /**
  * ```mermaid コードブロックを <pre class="mermaid"> に変換する remark プラグイン。
@@ -34,6 +35,6 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   markdown: {
-    remarkPlugins: [remarkMermaid],
+    processor: unified({ remarkPlugins: [remarkMermaid] }),
   },
 });
