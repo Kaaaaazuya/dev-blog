@@ -5,7 +5,7 @@
 
 ## 構成
 
-**Astro 5 + Cloudflare Pages + 独自ドメイン + AdSense**
+**Astro 6 + Cloudflare Pages + 独自ドメイン + AdSense**
 
 ```mermaid
 flowchart LR
