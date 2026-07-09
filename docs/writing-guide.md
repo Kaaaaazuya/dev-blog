@@ -2,6 +2,8 @@
 
 記事ドラフトの生成は `skills/write-draft/SKILL.md` の手順に従う。ネタの詳細は [article-ideas.md](article-ideas.md)。
 
+このリポジトリはpublicのため、`draft: true` の未公開記事もサイトには出ないがGitHub上では誰でも読める（許容する方針）。公開前提の内容のみを書くこと。
+
 ## 文体・分量
 
 - ですます調。1記事 4,000〜8,000字（読了10分以内）を目安に、超えるなら分割
