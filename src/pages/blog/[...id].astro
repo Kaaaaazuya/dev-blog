@@ -18,27 +18,109 @@ const { Content } = await render(post);
 
 <BaseLayout title={post.data.title} description={post.data.description}>
   <article>
-    <h1>{post.data.title}</h1>
-    <p>
+    <p
+      class="mb-[14px] font-['IBM_Plex_Mono',monospace] text-[12.5px] text-[var(--muted)]"
+    >
+      {
+        post.data.series && (
+          <>
+            <a
+              class="text-[var(--accent)] no-underline"
+              href={`/?series=${post.data.series}`}
+            >
+              {post.data.series}
+            </a>
+            {" · "}
+          </>
+        )
+      }
       <time datetime={post.data.pubDate.toISOString()}>
         {post.data.pubDate.toISOString().slice(0, 10)}
       </time>
-      {post.data.tags.map((tag) => <span class="tag">#{tag}</span>)}
     </p>
+    <h1 class="mb-4 text-[25px] leading-[1.65] font-bold tracking-[-0.01em]">
+      {post.data.title}
+    </h1>
+    {
+      post.data.tags.length > 0 && (
+        <div class="mb-10 flex flex-wrap gap-2">
+          {post.data.tags.map((tag) => (
+            <span class="rounded-full border border-[var(--line)] px-[10px] py-[3px] font-['IBM_Plex_Mono',monospace] text-[11.5px] text-[var(--accent)] no-underline">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )
+    }
 
     <AdSlot slot="TODO-上部ユニットID" />
 
-    <Content />
+    <div class="prose">
+      <Content />
+    </div>
 
     <AdSlot slot="TODO-下部ユニットID" />
   </article>
 </BaseLayout>
 
 <style>
-  .tag {
-    margin-left: 0.5rem;
-    font-size: 0.85rem;
-    color: #666;
+  /* markdown由来の要素はクラスを持たないため、ここだけ素のCSSでトークンを適用する */
+  .prose :global(h2) {
+    margin: 0 0 16px;
+    padding-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18.5px;
+    font-weight: 600;
+    line-height: 1.7;
+  }
+  .prose :global(h2)::before {
+    content: "##";
+    font:
+      600 13px "IBM Plex Mono",
+      monospace;
+    color: var(--accent);
+  }
+  .prose :global(p) {
+    margin: 0 0 20px;
+    font-size: 15px;
+    line-height: 2.05;
+  }
+  .prose :global(a) {
+    color: var(--accent);
+    text-underline-offset: 3px;
+  }
+  .prose :global(blockquote) {
+    margin: 0 0 32px;
+    padding: 14px 20px;
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 2;
+  }
+  .prose :global(pre) {
+    margin: 0 0 32px;
+    padding: 18px 20px;
+    background: var(--code);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow-x: auto;
+    font:
+      13px/1.75 "IBM Plex Mono",
+      monospace;
+  }
+  .prose :global(code) {
+    font-family: "IBM Plex Mono", monospace;
+  }
+  .prose :global(:not(pre) > code) {
+    font-size: 0.88em;
+    background: var(--code);
+    border-radius: 5px;
+    padding: 2px 6px;
   }
 </style>
 

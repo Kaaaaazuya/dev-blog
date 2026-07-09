@@ -1,8 +1,11 @@
 ---
-// サイト全体の共通レイアウト。デザインは後で詰める（現状は最小限）。
+// サイト全体の共通レイアウト。
 // TODO(head内): AdSense審査時にサイト全体タグ <script async src="https://pagead2.googlesyndication.com/..."> を追加
 // TODO(head内): OGPメタタグ / アクセス解析（Cloudflare Web Analytics）を追加
 // ※HTMLコメントは出力に残るため、TODOはこのfrontmatter側に書く
+import ThemeToggle from "../components/ThemeToggle.astro";
+import "../styles/global.css";
+
 interface Props {
   title: string;
   description?: string;
@@ -26,53 +29,71 @@ const SITE_NAME = "kinakomochio.dev"; // 仮。正式決定したら変更
       title={SITE_NAME}
       href="/rss.xml"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <!-- テーマのちらつき(FOUC)防止: 描画前に data-theme を確定させる -->
+    <script is:inline>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const theme =
+          stored ||
+          (matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
   </head>
-  <body>
-    <header>
-      <nav>
-        <a href="/">Home</a>
-        <a href="/about">About</a>
-        <a href="/privacy">Privacy</a>
-        <a href="/contact">Contact</a>
-      </nav>
+  <body
+    class="m-0 bg-[var(--bg)] font-['IBM_Plex_Sans_JP',system-ui,sans-serif] text-[var(--fg)] [line-height:1.8]"
+  >
+    <header
+      class="flex items-center justify-between border-b border-[var(--line)] px-10 py-[22px]"
+    >
+      <a
+        class="flex items-center gap-[10px] font-['IBM_Plex_Mono',monospace] text-[15px] font-semibold no-underline hover:text-[var(--fg)]"
+        href="/"
+      >
+        <span
+          class="inline-flex h-[10px] w-[10px] rounded-sm bg-[var(--accent)]"
+          aria-hidden="true"></span>
+        ~/kinakomochio.dev
+      </a>
+      <div class="flex items-center gap-[22px]">
+        <nav
+          class="flex gap-[18px] font-['IBM_Plex_Mono',monospace] text-[13px]"
+        >
+          <a
+            class="text-[var(--muted)] no-underline hover:text-[var(--fg)] aria-[current=page]:text-[var(--accent)]"
+            href="/">home</a
+          >
+          <a
+            class="text-[var(--muted)] no-underline hover:text-[var(--fg)] aria-[current=page]:text-[var(--accent)]"
+            href="/about">about</a
+          >
+          <a
+            class="text-[var(--muted)] no-underline hover:text-[var(--fg)] aria-[current=page]:text-[var(--accent)]"
+            href="/contact">contact</a
+          >
+        </nav>
+        <ThemeToggle />
+      </div>
     </header>
-    <main>
+    <main class="mx-auto max-w-[680px] px-10 pt-12 pb-[60px]">
       <slot />
     </main>
-    <footer>
-      <p>
-        © {new Date().getFullYear()} Kinakomochio — <a href="/privacy"
-          >プライバシーポリシー</a
-        >
-      </p>
+    <footer
+      class="mx-auto flex max-w-[680px] justify-between border-t border-[var(--line)] px-10 pt-5 pb-8 font-['IBM_Plex_Mono',monospace] text-xs text-[var(--muted)]"
+    >
+      <span>© {new Date().getFullYear()} kinakomochio</span>
+      <div class="flex gap-4">
+        <a class="text-[var(--muted)] no-underline" href="/rss.xml">rss</a>
+        <a class="text-[var(--muted)] no-underline" href="/privacy">privacy</a>
+      </div>
     </footer>
   </body>
 </html>
-
-<style is:global>
-  /* 最小限のスタイル。テーマ/デザインは未決事項（docs/architecture.md） */
-  body {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 1rem;
-    font-family: sans-serif;
-    line-height: 1.8;
-  }
-  nav {
-    display: flex;
-    gap: 1rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid #ddd;
-  }
-  footer {
-    margin-top: 3rem;
-    padding-top: 1rem;
-    border-top: 1px solid #ddd;
-    font-size: 0.85rem;
-  }
-  pre {
-    padding: 1rem;
-    overflow-x: auto;
-    border-radius: 6px;
-  }
-</style>

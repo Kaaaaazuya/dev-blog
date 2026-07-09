@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
+import tailwindcss from "@tailwindcss/vite";
 import { visit } from "unist-util-visit";
 
 /**
@@ -29,6 +30,9 @@ function remarkMermaid() {
 export default defineConfig({
   site: "https://kinakomochio.dev", // 仮ドメイン。正式取得後に確定
   integrations: [sitemap()],
+  vite: {
+    plugins: [tailwindcss()],
+  },
   markdown: {
     remarkPlugins: [remarkMermaid],
   },

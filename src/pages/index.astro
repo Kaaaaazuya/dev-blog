@@ -9,15 +9,41 @@ const posts = (
 ---
 
 <BaseLayout title="記事一覧">
-  <h1>記事一覧</h1>
-  <ul>
+  <p
+    class="mb-8 font-['IBM_Plex_Mono',monospace] text-[12.5px] text-[var(--muted)]"
+  >
+    <span class="text-[var(--accent)]">$</span> AIプロダクトの設計と実装を、作って学んだ記録
+  </p>
+  <div class="flex flex-col gap-[14px]">
     {
       posts.map((post) => (
-        <li>
-          <a href={`/blog/${post.id}/`}>{post.data.title}</a>
-          <small> — {post.data.pubDate.toISOString().slice(0, 10)}</small>
-        </li>
+        <a
+          class="flex flex-col gap-[10px] rounded-lg border border-[var(--line)] bg-[var(--surface)] px-6 py-[22px] text-inherit no-underline transition-colors duration-150 hover:border-[var(--accent)] hover:text-inherit"
+          href={`/blog/${post.id}/`}
+        >
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex flex-wrap gap-2">
+              {post.data.tags.map((tag) => (
+                <span class="rounded-full border border-[var(--line)] px-[9px] py-[3px] font-['IBM_Plex_Mono',monospace] text-[11.5px] text-[var(--accent)]">
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <time
+              class="whitespace-nowrap font-['IBM_Plex_Mono',monospace] text-xs text-[var(--muted)]"
+              datetime={post.data.pubDate.toISOString()}
+            >
+              {post.data.pubDate.toISOString().slice(0, 10)}
+            </time>
+          </div>
+          <h2 class="m-0 text-[16.5px] leading-[1.65] font-semibold">
+            {post.data.title}
+          </h2>
+          <p class="m-0 text-[13px] leading-[1.8] text-[var(--muted)]">
+            {post.data.description}
+          </p>
+        </a>
       ))
     }
-  </ul>
+  </div>
 </BaseLayout>
