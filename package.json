@@ -2,6 +2,7 @@
   "name": "dev-blog",
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@11.10.0",
   "//": "pnpm利用。バージョン固定は `corepack use pnpm@latest` で packageManager フィールドを自動追記",
   "scripts": {
     "dev": "astro dev",
