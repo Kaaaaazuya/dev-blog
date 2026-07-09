@@ -13,6 +13,7 @@ interface Props {
 const { title, description = "AIプロダクトの設計と実装を、作って学んだ記録" } =
   Astro.props;
 const SITE_NAME = "kinakomochio.dev"; // 仮。正式決定したら変更
+const { pathname } = Astro.url;
 ---
 
 <!doctype html>
@@ -69,15 +70,19 @@ const SITE_NAME = "kinakomochio.dev"; // 仮。正式決定したら変更
         >
           <a
             class="text-[var(--muted)] no-underline hover:text-[var(--fg)] aria-[current=page]:text-[var(--accent)]"
-            href="/">home</a
+            href="/"
+            aria-current={pathname === "/" ? "page" : undefined}>home</a
           >
           <a
             class="text-[var(--muted)] no-underline hover:text-[var(--fg)] aria-[current=page]:text-[var(--accent)]"
-            href="/about">about</a
+            href="/about"
+            aria-current={pathname === "/about/" ? "page" : undefined}>about</a
           >
           <a
             class="text-[var(--muted)] no-underline hover:text-[var(--fg)] aria-[current=page]:text-[var(--accent)]"
-            href="/contact">contact</a
+            href="/contact"
+            aria-current={pathname === "/contact/" ? "page" : undefined}
+            >contact</a
           >
         </nav>
         <ThemeToggle />
