@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { visit } from "unist-util-visit";
+import { unified } from "@astrojs/markdown-remark";
 
 /**
  * ```mermaid コードブロックを <pre class="mermaid"> に変換する remark プラグイン。
@@ -28,12 +29,12 @@ function remarkMermaid() {
 }
 
 export default defineConfig({
-  site: "https://kinakomochio.dev", // 仮ドメイン。正式取得後に確定
+  site: "https://kinakomochio.yk3kzy.workers.dev", // 暫定。独自ドメイン取得後に kinakomochio.dev へ変更
   integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()],
   },
   markdown: {
-    remarkPlugins: [remarkMermaid],
+    processor: unified({ remarkPlugins: [remarkMermaid] }),
   },
 });
