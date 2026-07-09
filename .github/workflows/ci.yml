@@ -22,6 +22,8 @@ jobs:
         run: pnpm format:check
       - name: Lint (ESLint, 警告0)
         run: pnpm lint
+      - name: Lint (textlint, 記事の表記ゆれ・文章校正)
+        run: pnpm textlint
       - name: Type check (astro check)
         run: pnpm typecheck
       - name: Build
