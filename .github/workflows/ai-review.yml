@@ -1,0 +1,113 @@
+name: AI Review
+
+on:
+  pull_request:
+    types: [opened, labeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ai-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.detect.outputs.should_run }}
+      files: ${{ steps.detect.outputs.files }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: detect
+        env:
+          EVENT_ACTION: ${{ github.event.action }}
+          LABEL_NAME: ${{ github.event.label.name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          # labeled イベントは ai-review ラベルのときだけ対象にする
+          if [ "$EVENT_ACTION" = "labeled" ] && [ "$LABEL_NAME" != "ai-review" ]; then
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # 差分フィルタ: opened=新規追加(A)のみ / labeled=追加+変更(AM)
+          if [ "$EVENT_ACTION" = "labeled" ]; then
+            FILTER=AM
+          else
+            FILTER=A
+          fi
+          FILES=$(git diff --name-only --diff-filter="$FILTER" "$BASE_SHA"..."$HEAD_SHA" | grep -E '^src/content/blog/.*\.md$' || true)
+          if [ -z "$FILES" ]; then
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "files<<FILES_EOF"
+              echo "$FILES"
+              echo "FILES_EOF"
+            } >> "$GITHUB_OUTPUT"
+          fi
+      # ai-review ラベルは一度使ったら外す（付け直しで再実行できる）
+      - if: github.event.action == 'labeled' && github.event.label.name == 'ai-review'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr edit "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" --remove-label ai-review
+
+  review:
+    needs: detect
+    if: >
+      needs.detect.outputs.should_run == 'true' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    strategy:
+      fail-fast: false
+      matrix:
+        perspective: [flame-risk, info-leak, seo]
+    steps:
+      - uses: actions/checkout@v7
+      - id: prompt
+        env:
+          PERSPECTIVE: ${{ matrix.perspective }}
+        run: |
+          {
+            echo 'content<<PROMPT_EOF'
+            cat ".github/ai-review/prompts/${PERSPECTIVE}.md"
+            echo 'PROMPT_EOF'
+          } >> "$GITHUB_OUTPUT"
+      - uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            ${{ steps.prompt.outputs.content }}
+
+            ## レビュー対象ファイル
+            以下のファイルだけをレビュー対象にすること（それ以外のファイルは無視）:
+            ${{ needs.detect.outputs.files }}
+
+            ## 出力方法（厳守）
+            - レビュー結果は必ず 1 件の PR コメントとして投稿する。メッセージとして返すだけにしない。
+            - コメント本文の先頭に必ずマーカー行 `<!-- ai-review:${{ matrix.perspective }} -->` を含める。
+            - 既存 PR コメントを確認し、同じマーカーを含むコメントがあればそれを上書き更新し、なければ新規作成する。
+              - 既存コメント一覧の取得: `gh pr view ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --json comments`
+              - 上書き更新: `gh api repos/${{ github.repository }}/issues/comments/<COMMENT_ID> -X PATCH -F body=@<本文ファイル>`
+              - 新規作成: `gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --body-file <本文ファイル>`
+          claude_args: |
+            --model claude-sonnet-5
+            --max-turns 20
+            --allowedTools "Read,Grep,Glob,Bash(gh pr view:*),Bash(gh pr comment:*),Bash(gh api:*),Bash(cat:*)"
