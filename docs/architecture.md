@@ -52,26 +52,37 @@ npmではなくpnpmを採用。理由と設定（`pnpm-workspace.yaml`）:
 
 ## 決定事項
 
-| 項目                 | 決定                                                                                                                                                                                     |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ドメイン             | **kinakomochio.dev**（仮。取得時に確定）                                                                                                                                                 |
-| パッケージマネージャ | pnpm（下記セクション参照）                                                                                                                                                               |
-| mermaid              | remarkプラグインで `<pre class="mermaid">` に変換 → クライアント側でSVG化。mermaidはnpmでバージョン固定・バンドル（CDN不使用＝サプライチェーン対策）。ブロックがあるページのみ動的import |
-| コードハイライト     | Astro標準（Shiki）                                                                                                                                                                       |
-| RSS                  | `@astrojs/rss`（`/rss.xml`）                                                                                                                                                             |
-| CI                   | GitHub Actions で `pnpm build` チェック（`.github/workflows/ci.yml`）                                                                                                                    |
-| Zenn連携             | **やらない**（本ブログに一本化。`zenn-blog/` の資産は移植済みで役目終了）                                                                                                                |
-| 実装上の注意         | `.astro` のHTMLコメントは本番出力に残る。TODOはfrontmatter側にJSコメントで書く                                                                                                           |
+| 項目                 | 決定                                                                                                                                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ドメイン             | **kinakomochio.dev**（仮。取得時に確定。取得先はCloudflare Registrar推奨＝Pagesと同一アカウントでDNS移管不要）                                                                                                |
+| デプロイ             | GitHub Actions（`.github/workflows/deploy.yml`）から `wrangler pages deploy` でCloudflare Pagesへデプロイ。ダッシュボードのGit連携は使わない。`v*` タグのpushでのみ発火（mainへの通常pushではデプロイしない） |
+| Pagesプロジェクト名  | `kinakomochio`（暫定URL: `https://kinakomochio.pages.dev`）。独自ドメイン取得後にカスタムドメインとして追加                                                                                                   |
+| パッケージマネージャ | pnpm（下記セクション参照）                                                                                                                                                                                    |
+| mermaid              | remarkプラグインで `<pre class="mermaid">` に変換 → クライアント側でSVG化。mermaidはnpmでバージョン固定・バンドル（CDN不使用＝サプライチェーン対策）。ブロックがあるページのみ動的import                      |
+| コードハイライト     | Astro標準（Shiki）                                                                                                                                                                                            |
+| RSS                  | `@astrojs/rss`（`/rss.xml`）                                                                                                                                                                                  |
+| CI                   | GitHub Actions で `pnpm build` チェック（`.github/workflows/ci.yml`）                                                                                                                                         |
+| Zenn連携             | **やらない**（本ブログに一本化。`zenn-blog/` の資産は移植済みで役目終了）                                                                                                                                     |
+| 実装上の注意         | `.astro` のHTMLコメントは本番出力に残る。TODOはfrontmatter側にJSコメントで書く                                                                                                                                |
 
 ## セットアップ手順（残り）
 
 1. ✅ `pnpm install` → `pnpm build` 検証済み（lockfileコミット済み）
 2. ✅ git リポジトリ化（初回コミット済み）
-3. GitHubにリポジトリ作成 → push → Cloudflare Pages にリポジトリ接続（Framework preset: Astro）
-4. kinakomochio.dev を取得（Cloudflare Registrar推奨）→ Pages にカスタムドメイン設定
-5. privacy / contact / about の文面を埋める（各ファイルのfrontmatterにTODO記載）
-6. 記事を10〜20本執筆（サンプル記事 `ai-arch-00-sample.md` は削除）
-7. AdSense審査申請 → 通過後: BaseLayoutにサイトタグ・AdSlotのID設定・`ADS_ENABLED=true`・ads.txt記入
+3. Cloudflare Pages / ドメインの設定（下記「デプロイ設定（ユーザー側の作業）」を参照）
+4. privacy / contact / about の文面を埋める（各ファイルのfrontmatterにTODO記載）
+5. 記事を10〜20本執筆（下書き中の記事は `draft: true` のまま）
+6. AdSense審査申請 → 通過後: BaseLayoutにサイトタグ・AdSlotのID設定・`ADS_ENABLED=true`・ads.txt記入
+
+## デプロイ設定（ユーザー側の作業・コードでは完結しない）
+
+`deploy.yml` はワークフローファイルを置くだけでは動かず、Cloudflare側の準備とGitHub Secretsの登録が必要。
+
+- [ ] Cloudflareダッシュボードで Pages プロジェクト `kinakomochio` を作成
+- [ ] Pages:Edit 権限の APIトークンとアカウントIDを取得
+- [ ] GitHubリポジトリの Settings → Secrets に `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` を登録
+- [ ] `v*` 形式のタグ（例: `git tag v1.0.0 && git push origin v1.0.0`）をpushするとデプロイが自動実行され、`https://kinakomochio.pages.dev` で公開される
+- [ ] 独自ドメイン取得時: Cloudflare Registrarで `kinakomochio.dev` を取得 → Pagesプロジェクトにカスタムドメインとして追加 → `astro.config.mjs` の `site` / `public/robots.txt` の `Sitemap:` / `src/pages/rss.xml.ts` の `site` フォールバック、計3ファイルの暫定URL（`kinakomochio.pages.dev`）を正式ドメインへ差し替え
 
 ## 広告の設計
 

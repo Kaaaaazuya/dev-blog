@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kinakomochio.dev/sitemap-index.xml
+Sitemap: https://kinakomochio.pages.dev/sitemap-index.xml
