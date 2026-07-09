@@ -1,9 +1,5 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-// TODO: AdSense審査前に必ず正式な文面にする。
-//  - パーソナライズ広告の無効化リンク（Google広告設定）を記載
-//  - 使用する解析ツール（Cloudflare Web Analytics 等）を記載
-//  - 免責事項を記載
 ---
 
 <BaseLayout title="プライバシーポリシー">
@@ -12,10 +8,29 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <p class="m-0 text-[14.5px] leading-[1.95] text-[var(--muted)]">
     当サイトは第三者配信の広告サービス（Google
     AdSense）を利用予定です。広告配信事業者は Cookie
-    を使用し、ユーザーの興味に応じた広告を表示することがあります。
+    を使用し、ユーザーの興味に応じた広告を表示することがあります。パーソナライズ広告は
+    <a
+      class="text-[var(--accent)]"
+      href="https://adssettings.google.com/"
+      target="_blank"
+      rel="noopener noreferrer">Google広告設定</a
+    >から無効にできます。また、広告と個人化に Cookie
+    を使用しないようにする方法については
+    <a
+      class="text-[var(--accent)]"
+      href="https://www.aboutads.info/choices/"
+      target="_blank"
+      rel="noopener noreferrer">www.aboutads.info</a
+    >をご覧ください。
   </p>
   <h2 class="mt-8 mb-3 text-base font-semibold">アクセス解析について</h2>
-  <p class="m-0 text-[14.5px] leading-[1.95] text-[var(--muted)]">準備中</p>
+  <p class="m-0 text-[14.5px] leading-[1.95] text-[var(--muted)]">
+    当サイトはアクセス解析のために Cloudflare Web Analytics
+    を使用しています。このツールは Cookie
+    を使用せず、個人を特定する情報を収集しません。
+  </p>
   <h2 class="mt-8 mb-3 text-base font-semibold">免責事項</h2>
-  <p class="m-0 text-[14.5px] leading-[1.95] text-[var(--muted)]">準備中</p>
+  <p class="m-0 text-[14.5px] leading-[1.95] text-[var(--muted)]">
+    当サイトのコンテンツ・情報について、可能な限り正確な情報を掲載するよう努めておりますが、正確性や安全性を保証するものではありません。当サイトに掲載された内容によって生じた損害等の一切の責任を負いかねますので、あらかじめご了承ください。
+  </p>
 </BaseLayout>

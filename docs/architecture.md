@@ -67,13 +67,15 @@ npmではなくpnpmを採用。理由と設定（`pnpm-workspace.yaml`）:
 | AIレビュー            | 記事追加PRに claude-code-action で観点別レビュー（炎上リスク・情報漏洩・SEO）。matrix並列・non-blocking・`ai-review` ラベルで再実行（workflow: `.github/workflows/ai-review.yml`、プロンプト: `.github/ai-review/prompts/`） |
 | Zenn連携              | **やらない**（本ブログに一本化。`zenn-blog/` の資産は移植済みで役目終了）                                                                                                                                                    |
 | 実装上の注意          | `.astro` のHTMLコメントは本番出力に残る。TODOはfrontmatter側にJSコメントで書く                                                                                                                                               |
+| アクセス解析          | Cloudflare Web Analytics（無料・Cookieレス）に決定。プライバシーポリシーに記載済み。実際のタグ埋め込みはPages/Workers接続後にトークン取得してから対応                                                                        |
+| 問い合わせ方式        | Google Forms 埋め込みに決定。`contact.astro` に埋め込み枠を実装済み。フォーム作成・URL設定はTODOのまま（運用開始時に対応）                                                                                                   |
 
 ## セットアップ手順（残り）
 
 1. ✅ `pnpm install` → `pnpm build` 検証済み（lockfileコミット済み）
 2. ✅ git リポジトリ化（初回コミット済み）
 3. Cloudflare Workers / ドメインの設定（下記「デプロイ設定（ユーザー側の作業）」を参照）
-4. privacy / contact / about の文面を埋める（各ファイルのfrontmatterにTODO記載）
+4. ✅ privacy / contact / about の文面を埋める（contact.astroのGoogle FormsURLのみ運用開始時に設定）
 5. 記事を10〜20本執筆（下書き中の記事は `draft: true` のまま）
 6. AdSense審査申請 → 通過後: BaseLayoutにサイトタグ・AdSlotのID設定・`ADS_ENABLED=true`・ads.txt記入
 
@@ -96,11 +98,9 @@ npmではなくpnpmを採用。理由と設定（`pnpm-workspace.yaml`）:
 
 ## 未決事項（残り）
 
-| 項目            | 候補・メモ                                                                      |
-| --------------- | ------------------------------------------------------------------------------- |
-| デザイン/テーマ | 現状素のCSS最小限。自作 or Astroテーマ導入                                      |
-| OG画像          | 自動生成（satori等）は後回しでよい                                              |
-| アクセス解析    | Cloudflare Web Analytics（無料・Cookieレス）第一候補。Pages接続後にトークン取得 |
-| 問い合わせ方式  | Google Forms 埋め込みが最小工数（推奨）                                         |
+| 項目            | 候補・メモ                                                                  |
+| --------------- | --------------------------------------------------------------------------- |
+| デザイン/テーマ | 現状素のCSS最小限。自作 or Astroテーマ導入                                  |
+| OG画像          | 自動生成（satori等）は後回しでよい。現状OGPはog:imageなしのテキストタグのみ |
 
 ドラフト生成スキルは `skills/write-draft/SKILL.md` に作成済み。`.claude/skills/` へ移すとClaude Code / Coworkが自動参照する（`git mv skills .claude/skills`）。
