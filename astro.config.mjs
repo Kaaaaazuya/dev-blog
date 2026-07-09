@@ -28,7 +28,7 @@ function remarkMermaid() {
 }
 
 export default defineConfig({
-  site: "https://kinakomochio.dev", // 仮ドメイン。正式取得後に確定
+  site: "https://kinakomochio.pages.dev", // 暫定。独自ドメイン取得後に kinakomochio.dev へ変更
   integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()],
