@@ -33,7 +33,7 @@ cp templates/article-template.md src/content/blog/ai-arch-01-llm-responsibility.
 | --------------- | --------------------------------------------------------------------------------------------- |
 | pre-commit      | lint-staged（Prettier + ESLint --fix、警告0）→ gitleaks（staged差分の秘密情報スキャン）       |
 | pre-push        | `pnpm typecheck`（astro check、strict設定）                                                   |
-| CI (quality)    | format:check / lint / typecheck / build                                                       |
+| CI (quality)    | format:check / lint / typecheck / build / actionlint（workflowファイルの構文検証）            |
 | CI (security)   | gitleaks（全履歴）/ `pnpm audit --audit-level=high` / Dependabot（週次）                      |
 | CI (AIレビュー) | 記事追加PRに claude-code-action で観点別レビュー（炎上リスク / 情報漏洩 / SEO）・non-blocking |
 
