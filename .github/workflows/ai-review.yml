@@ -19,7 +19,7 @@ jobs:
       should_run: ${{ steps.detect.outputs.should_run }}
       files: ${{ steps.detect.outputs.files }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
       - id: detect
@@ -74,7 +74,7 @@ jobs:
       matrix:
         perspective: [flame-risk, info-leak, seo]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - id: prompt
         env:
           PERSPECTIVE: ${{ matrix.perspective }}
@@ -84,7 +84,7 @@ jobs:
             cat ".github/ai-review/prompts/${PERSPECTIVE}.md"
             echo 'PROMPT_EOF'
           } >> "$GITHUB_OUTPUT"
-      - uses: anthropics/claude-code-action@v1
+      - uses: anthropics/claude-code-action@e3ba649a81aa8af3ddca750d3ddc35901f29de19 # v1
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
