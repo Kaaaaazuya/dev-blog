@@ -4,17 +4,30 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="About">
-  <h1>About</h1>
-  <p>
+  <h1 class="mb-5 text-[22px] font-bold">About</h1>
+  <p class="mb-7 text-[15px] leading-[2]">
     AIを組み込んだアプリケーションを作りながら学んだ設計・アーキテクチャを記録するブログです。
   </p>
-  <ul>
-    <li>
-      <a href="https://github.com/Kaaaaazuya/koto-log">koto-log</a> — LINE育児記録エージェント（Tool
-      Use）
+  <ul class="m-0 flex list-none flex-col gap-3 p-0">
+    <li
+      class="rounded-lg border border-[var(--line)] bg-[var(--surface)] px-5 py-4 text-sm"
+    >
+      <a
+        class="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-[var(--accent)] no-underline hover:underline"
+        href="https://github.com/Kaaaaazuya/koto-log">koto-log</a
+      >
+      <span class="text-[var(--muted)]"
+        >— LINE育児記録エージェント（Tool Use）</span
+      >
     </li>
-    <li>
-      <a href="https://github.com/Kaaaaazuya/biblio-rag">biblio-rag</a> — 日本語書籍RAGパイプライン
+    <li
+      class="rounded-lg border border-[var(--line)] bg-[var(--surface)] px-5 py-4 text-sm"
+    >
+      <a
+        class="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-[var(--accent)] no-underline hover:underline"
+        href="https://github.com/Kaaaaazuya/biblio-rag">biblio-rag</a
+      >
+      <span class="text-[var(--muted)]">— 日本語書籍RAGパイプライン</span>
     </li>
   </ul>
 </BaseLayout>
