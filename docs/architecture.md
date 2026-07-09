@@ -48,7 +48,7 @@ npmではなくpnpmを採用。理由と設定（`pnpm-workspace.yaml`）:
 - **ビルドスクリプトの既定ブロック**: 依存の install/postinstall スクリプトを実行しない（悪意あるパッケージの主要な攻撃経路を遮断）。必要な esbuild / sharp のみ `allowBuilds` で許可
 - **minimumReleaseAge: 1440**: 公開から24時間未満のバージョンを入れない（ハイジャックされたリリースの検知猶予）
 - pnpm 11 ではこれらがデフォルト。CI・Cloudflare Pages でも `pnpm-lock.yaml` があれば pnpm が自動選択される
-- 追加運用: `pnpm audit` をCIに組み込む（textlint導入時に一緒に）
+- 追加運用: `pnpm audit` をCIに組み込み済み
 
 ## 決定事項
 
@@ -62,6 +62,7 @@ npmではなくpnpmを採用。理由と設定（`pnpm-workspace.yaml`）:
 | コードハイライト      | Astro標準（Shiki）                                                                                                                                                                                                           |
 | RSS                   | `@astrojs/rss`（`/rss.xml`）                                                                                                                                                                                                 |
 | CI                    | GitHub Actions で `pnpm build` チェック（`.github/workflows/ci.yml`）                                                                                                                                                        |
+| textlint              | 記事（`src/content/blog/**/*.md`）の表記ゆれ・文章校正をCIでチェック（`pnpm textlint`）。ルール: `textlint-rule-preset-ja-technical-writing` + `textlint-rule-prh`（表記ゆれ辞書: `prh.yml`）。設定は `.textlintrc.yml`      |
 | AIレビュー            | 記事追加PRに claude-code-action で観点別レビュー（炎上リスク・情報漏洩・SEO）。matrix並列・non-blocking・`ai-review` ラベルで再実行（workflow: `.github/workflows/ai-review.yml`、プロンプト: `.github/ai-review/prompts/`） |
 | Zenn連携              | **やらない**（本ブログに一本化。`zenn-blog/` の資産は移植済みで役目終了）                                                                                                                                                    |
 | 実装上の注意          | `.astro` のHTMLコメントは本番出力に残る。TODOはfrontmatter側にJSコメントで書く                                                                                                                                               |
@@ -100,6 +101,5 @@ npmではなくpnpmを採用。理由と設定（`pnpm-workspace.yaml`）:
 | OG画像          | 自動生成（satori等）は後回しでよい                                              |
 | アクセス解析    | Cloudflare Web Analytics（無料・Cookieレス）第一候補。Pages接続後にトークン取得 |
 | 問い合わせ方式  | Google Forms 埋め込みが最小工数（推奨）                                         |
-| textlint        | 執筆自動化フェーズ2でCIに追加（pnpm audit・gitleaksは導入済み）                 |
 
 ドラフト生成スキルは `skills/write-draft/SKILL.md` に作成済み。`.claude/skills/` へ移すとClaude Code / Coworkが自動参照する（`git mv skills .claude/skills`）。

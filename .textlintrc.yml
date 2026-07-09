@@ -1,0 +1,13 @@
+# textlint設定。対象は記事本文（src/content/blog/**/*.md）。
+# 実行: pnpm textlint
+rules:
+  preset-ja-technical-writing:
+    # LINEでのやり取りをそのまま引用する記事が多く「？」を意図的に使うため無効化
+    no-exclamation-question-mark: false
+    # 「**見出し**: 体言止め」の要約行（対象読者など）が全記事で使われる書式のため無効化
+    ja-no-mixed-period: false
+  prh:
+    rulePaths:
+      - ./prh.yml
+filters:
+  comments: true

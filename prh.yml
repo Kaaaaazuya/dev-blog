@@ -1,0 +1,8 @@
+version: 1
+rules:
+  - expected: サーバー
+    patterns: サーバ(?!ー)
+  - expected: ユーザー
+    patterns: ユーザ(?!ー)
+  - expected: コンピューター
+    patterns: コンピュータ(?!ー)

@@ -11,6 +11,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings=0",
+    "textlint": "textlint 'src/content/blog/**/*.md'",
     "typecheck": "astro check",
     "prepare": "simple-git-hooks"
   },
@@ -34,6 +35,10 @@
     "prettier-plugin-astro": "^0.14.0",
     "simple-git-hooks": "^2.0.0",
     "tailwindcss": "^4.3.2",
+    "textlint": "^15.7.1",
+    "textlint-filter-rule-comments": "^1.3.0",
+    "textlint-rule-preset-ja-technical-writing": "^12.0.2",
+    "textlint-rule-prh": "^6.1.0",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.63.0",
     "wrangler": "^4.107.1"
