@@ -35,7 +35,8 @@
     "simple-git-hooks": "^2.0.0",
     "tailwindcss": "^4.3.2",
     "typescript": "^5.0.0",
-    "typescript-eslint": "^8.63.0"
+    "typescript-eslint": "^8.63.0",
+    "wrangler": "^4.107.1"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged && gitleaks git --staged --redact --no-banner",
