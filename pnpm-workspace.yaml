@@ -13,3 +13,4 @@ allowBuilds:
   sharp: true # Astroの画像最適化に必要
   # simple-git-hooks の postinstall は不要（プロジェクトの prepare スクリプトで明示的に登録する）
   simple-git-hooks: false
+  workerd: true # wrangler（Cloudflare Pagesデプロイ）に必要
