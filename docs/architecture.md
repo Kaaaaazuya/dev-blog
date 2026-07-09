@@ -62,6 +62,7 @@ npmではなくpnpmを採用。理由と設定（`pnpm-workspace.yaml`）:
 | コードハイライト      | Astro標準（Shiki）                                                                                                                                                                                                           |
 | RSS                   | `@astrojs/rss`（`/rss.xml`）                                                                                                                                                                                                 |
 | CI                    | GitHub Actions で `pnpm build` チェック（`.github/workflows/ci.yml`）                                                                                                                                                        |
+| AIレビュー            | 記事追加PRに claude-code-action で観点別レビュー（炎上リスク・情報漏洩・SEO）。matrix並列・non-blocking・`ai-review` ラベルで再実行（workflow: `.github/workflows/ai-review.yml`、プロンプト: `.github/ai-review/prompts/`） |
 | Zenn連携              | **やらない**（本ブログに一本化。`zenn-blog/` の資産は移植済みで役目終了）                                                                                                                                                    |
 | 実装上の注意          | `.astro` のHTMLコメントは本番出力に残る。TODOはfrontmatter側にJSコメントで書く                                                                                                                                               |
 
