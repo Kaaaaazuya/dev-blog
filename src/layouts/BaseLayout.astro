@@ -6,9 +6,13 @@
 interface Props {
   title: string;
   description?: string;
+  robots?: string;
 }
-const { title, description = "AIプロダクトの設計と実装を、作って学んだ記録" } =
-  Astro.props;
+const {
+  title,
+  description = "AIプロダクトの設計と実装を、作って学んだ記録",
+  robots,
+} = Astro.props;
 const SITE_NAME = "kinakomochio.dev"; // 仮。正式決定したら変更
 ---
 
@@ -19,6 +23,7 @@ const SITE_NAME = "kinakomochio.dev"; // 仮。正式決定したら変更
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} | {SITE_NAME}</title>
     <meta name="description" content={description} />
+    {robots && <meta name="robots" content={robots} />}
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link
       rel="alternate"
