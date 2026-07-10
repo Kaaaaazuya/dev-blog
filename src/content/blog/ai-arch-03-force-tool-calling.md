@@ -21,7 +21,7 @@ draft: true
 
 ## 題材アプリ
 
-[koto-log](https://github.com/Kaaaaazuya/koto-log) — LINEで動く育児記録エージェント（詳細は[第1回](/blog/ai-arch-01-llm-responsibility/)参照）。本記事のコードは[コミット `20845c0` 時点](https://github.com/Kaaaaazuya/koto-log/tree/20845c04ee5716d323525ed765c61fc0bb1be34a)の [`src/kotolog/agent/extractor.py`](https://github.com/Kaaaaazuya/koto-log/blob/20845c04ee5716d323525ed765c61fc0bb1be34a/src/kotolog/agent/extractor.py) と [`src/kotolog/tools/definitions.py`](https://github.com/Kaaaaazuya/koto-log/blob/20845c04ee5716d323525ed765c61fc0bb1be34a/src/kotolog/tools/definitions.py) のものです。
+[koto-log](https://github.com/Kaaaaazuya/koto-log) — LINEで動く育児記録エージェント（詳細は[第1回](/blog/ai-arch-01-llm-responsibility/)参照）。本記事のコードは[コミット `20845c0` 時点](https://github.com/Kaaaaazuya/koto-log/tree/20845c04ee5716d323525ed765c61fc0bb1be34a)の [`src/kotolog/agent/extractor.py`](https://github.com/Kaaaaazuya/koto-log/blob/20845c04ee5716d323525ed765c61fc0bb1be34a/src/kotolog/agent/extractor.py) のものです。
 
 ## 課題: まとめて書かれた入力を1件ずつ処理させると無駄が多い
 
@@ -38,8 +38,10 @@ flowchart TD
     IN["ユーザー入力"] --> EXT["extract_records()<br>force tool calling<br>(extract_records ツールを強制)"]
     EXT --> Q{"records が<br>空でない?"}
     Q -->|"あり（まとめ入力）"| SAVE["record 1件ずつ<br>save_record を実行<br>(追加LLM呼び出しなし)"]
-    SAVE --> CONF["テンプレートで確認文を生成<br>(追加LLM呼び出しなし)"]
-    Q -->|"空（記録以外、または保存0件）"| LOOP["通常のtool-useループへ<br>（第2回で解説）"]
+    Q -->|"空（記録以外）"| LOOP["通常のtool-useループへ<br>（第2回で解説）"]
+    SAVE --> QS{"1件以上<br>保存できた?"}
+    QS -->|"Yes"| CONF["テンプレートで確認文を生成<br>(追加LLM呼び出しなし)"]
+    QS -->|"No（保存0件）"| LOOP
 ```
 
 抽出専用の`extract_records`は保存をせず、**記録候補を返すだけ**です。実際の保存は呼び出し元の`handle()`がループで`save_record`を実行します。これにより「記録を判定するLLM呼び出し」と「DBへ保存する処理」が分離され、確認文の生成にも追加のLLM呼び出しは不要になります。
@@ -90,7 +92,7 @@ def extract_records(text: str, llm_client) -> tuple[list[dict], str | None]:
 `_EXTRACT_TOOL`のJSON Schemaは、自然文の指示以上にLLMの出力を縛ります。
 
 ```python
-# src/kotolog/tools/definitions.py（EXTRACT_TOOLはこの隣のextractor.pyで定義）
+# src/kotolog/agent/extractor.py
 _EXTRACT_TOOL = {
     "type": "function",
     "function": {
@@ -116,7 +118,11 @@ _EXTRACT_TOOL = {
                                     "hospital", "outing", "height", "weight",
                                 ],
                             },
-                            # ...(略: sub_type / amount / unit / started_at / ended_at / note)
+                            "started_at": {
+                                "type": "string",
+                                "description": "相対表現のままでよい（例: 9時、さっき、14:30）",
+                            },
+                            # ...(略: sub_type / amount / unit / ended_at / note)
                         },
                         "required": ["type", "started_at"],
                     },
@@ -132,6 +138,8 @@ _EXTRACT_TOOL = {
 `type`を自由文字列ではなく11種の`enum`にしたことで、LLMは「おしっこ交換」を`diaper`以外の値に開こうとしなくなります。`required: ["type", "started_at"]`も同様に、時刻が読み取れない記録候補を省略なしで無理やり埋めることを防ぎます。時刻の確定はアプリ側の役目であり、LLMには「さっき」のような相対表現のまま渡させます。
 
 descriptionの「記録でない場合は records を空リストにする」という一文も重要です。これがあることで、質問や集計依頼が来たときにLLMは無理に記録をでっち上げず、空配列という「該当なし」を表現する正常な出力を選べます。
+
+なお、実装はこのスキーマ単体に頼っていません。3文の短いシステムプロンプト（`_EXTRACT_SYSTEM`）を併用し、「全ての記録を抽出せよ」「記録でなければ空リストにする」という同じ指示を自然文でも重ねています。schemaが「実質のプロンプト」だとしても役割の宣言まで代替するわけではなく、構造的な制約と自然文の指示は重ねがけする関係にあります。
 
 ### 3. 空なら通常のツール使用ループへフォールバックする
 
