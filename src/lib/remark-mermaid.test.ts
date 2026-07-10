@@ -46,6 +46,8 @@ describe("remarkMermaid", () => {
     remarkMermaid()(tree);
     const node = tree.children[0] as Code;
     expect(node.type).toBe("code");
+    expect(node.lang).toBeNull();
+    expect(node.value).toBe("some code");
   });
 
   it("converts multiple mermaid code blocks in the same tree", () => {

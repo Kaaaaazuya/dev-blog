@@ -51,7 +51,8 @@ describe("blogSchema", () => {
     const result = blogSchema.safeParse(input);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.pubDate instanceof Date).toBe(true);
+      expect(result.data.pubDate).toBeInstanceOf(Date);
+      expect(result.data.pubDate).toEqual(new Date("2026-07-10"));
     }
   });
 
@@ -61,6 +62,18 @@ describe("blogSchema", () => {
       title: "Invalid Date Post",
       description: "Invalid date test",
       pubDate: "not-a-date",
+    };
+    const result = blogSchema.safeParse(input);
+    expect(result.success).toBe(false);
+  });
+
+  // Test 4.5: updatedDate as "not-a-date" should fail
+  it("fails when updatedDate is an invalid date string", () => {
+    const input = {
+      title: "Invalid Updated Date Post",
+      description: "Invalid updated date test",
+      pubDate: new Date("2026-07-10"),
+      updatedDate: "not-a-date",
     };
     const result = blogSchema.safeParse(input);
     expect(result.success).toBe(false);
