@@ -26,6 +26,8 @@ jobs:
         run: pnpm textlint
       - name: Type check (astro check)
         run: pnpm typecheck
+      - name: Unit test (vitest)
+        run: pnpm test
       - name: Build
         run: pnpm build
       - name: Lint workflow files (actionlint)
