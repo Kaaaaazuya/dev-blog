@@ -1,7 +1,6 @@
 ---
 // サイト全体の共通レイアウト。
 // TODO(head内): AdSense審査時にサイト全体タグ <script async src="https://pagead2.googlesyndication.com/..."> を追加
-// TODO(head内): アクセス解析（Cloudflare Web Analytics）タグを追加
 // ※HTMLコメントは出力に残るため、TODOはこのfrontmatter側に書く
 import ThemeToggle from "../components/ThemeToggle.astro";
 import "../styles/global.css";
@@ -19,6 +18,7 @@ const {
 const SITE_NAME = "kinakomochio.dev"; // 仮。正式決定したら変更
 const { pathname } = Astro.url;
 const canonicalURL = new URL(pathname, Astro.site ?? Astro.url);
+const CF_BEACON_TOKEN = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
 ---
 
 <!doctype html>
@@ -63,6 +63,16 @@ const canonicalURL = new URL(pathname, Astro.site ?? Astro.url);
         document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
+    {
+      CF_BEACON_TOKEN && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={JSON.stringify({ token: CF_BEACON_TOKEN })}
+        />
+      )
+    }
   </head>
   <body
     class="m-0 bg-[var(--bg)] font-['IBM_Plex_Sans_JP',system-ui,sans-serif] text-[var(--fg)] [line-height:1.8]"
