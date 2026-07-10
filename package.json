@@ -12,6 +12,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings=0",
     "textlint": "textlint 'src/content/blog/**/*.md'",
+    "test": "vitest run",
     "typecheck": "astro check",
     "prepare": "simple-git-hooks"
   },
@@ -41,6 +42,7 @@
     "textlint-rule-prh": "^6.1.0",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.63.0",
+    "vitest": "^4.1.10",
     "wrangler": "^4.107.1"
   },
   "simple-git-hooks": {
