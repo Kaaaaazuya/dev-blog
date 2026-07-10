@@ -1,6 +1,6 @@
 ---
 title: "Force Tool Callingで一括構造化抽出する — JSON Schemaを「実質のプロンプト」にする"
-description: "1回のLLM呼び出しで複数の育児記録を抽出するforce tool callingの実装を解説します。tool_choiceでツールを1つに固定し、JSON Schemaのenum・requiredを実質のプロンプトにする方法と、記録でなければ空リストを返して通常のツール使用ループへフォールバックする2段構えの設計を実コードで見ていきます。"
+description: "1回のLLM呼び出しで複数の育児記録を抽出するforce tool callingの実装を解説します。tool_choiceでツールを1つに固定し、JSON Schemaのenum・requiredを実質のプロンプトにする方法と、記録以外を通常のツール使用ループへ流すフォールバック設計を実コードで見ていきます。"
 pubDate: 2026-07-10
 tags: ["llm", "ai", "python", "tool-use", "structured-output"]
 series: "ai-architecture"
@@ -46,7 +46,7 @@ flowchart TD
 
 抽出専用の`extract_records`は保存をせず、**記録候補を返すだけ**です。実際の保存は呼び出し元の`handle()`がループで`save_record`を実行します。これにより「記録を判定するLLM呼び出し」と「DBへ保存する処理」が分離され、確認文の生成にも追加のLLM呼び出しは不要になります。
 
-## 実装
+## 実装: tool_choiceによるforce tool calling
 
 ### 1. tool_choiceで「このツールしか呼べない」状態を作る
 
