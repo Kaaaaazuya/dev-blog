@@ -98,22 +98,31 @@ const allTags = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
   // 一覧のクライアントサイド絞り込み。
   // タグ: filter-barのボタン / URLの ?tag=
   // シリーズ: 記事ページからの ?series= リンク（filter-barには出さず、URL経由でのみ効く）
-  const cards = [...document.querySelectorAll<HTMLElement>(".post-card")];
+  // data-tags は初期化時に一度だけパースしてキャッシュする（クリック毎の再パースを避ける）
+  const cards = [...document.querySelectorAll<HTMLElement>(".post-card")].map(
+    (element) => {
+      let tags: string[] = [];
+      try {
+        tags = JSON.parse(element.dataset.tags ?? "[]");
+      } catch (e) {
+        console.error("Failed to parse data-tags:", element, e);
+      }
+      return { element, series: element.dataset.series ?? "", tags };
+    },
+  );
   const tagButtons = [
     ...document.querySelectorAll<HTMLButtonElement>("[data-filter-tag]"),
   ];
   const emptyState = document.getElementById("empty-state");
 
   // type: "tag" | "series"、value: 空文字なら全件表示
-  function applyFilter(type: string, value: string) {
+  function applyFilter(type: "tag" | "series", value: string) {
     let visible = 0;
     for (const card of cards) {
       const match =
         value === "" ||
-        (type === "series"
-          ? card.dataset.series === value
-          : JSON.parse(card.dataset.tags ?? "[]").includes(value));
-      card.hidden = !match;
+        (type === "series" ? card.series === value : card.tags.includes(value));
+      card.element.hidden = !match;
       if (match) visible++;
     }
     // タグボタンの押下状態は、タグフィルタのときだけ同期（シリーズ時は all も含め非活性）
@@ -135,9 +144,11 @@ const allTags = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
   for (const btn of tagButtons) {
     btn.addEventListener("click", () => {
       const value = btn.dataset.filterTag ?? "";
+      const params = new URLSearchParams(location.search);
+      // 同じタグを再クリックし、かつシリーズ絞り込み中でなければ履歴を汚さない
+      if (value === (params.get("tag") ?? "") && !params.get("series")) return;
       applyFilter("tag", value);
       // URLへ反映（?series= は解除、履歴を汚さず戻れるように pushState）
-      const params = new URLSearchParams(location.search);
       params.delete("series");
       if (value) params.set("tag", value);
       else params.delete("tag");

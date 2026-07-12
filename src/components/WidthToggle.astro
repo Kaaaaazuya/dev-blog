@@ -46,7 +46,11 @@
         const current = document.documentElement.getAttribute("data-width");
         const next = current === "wide" ? "narrow" : "wide";
         document.documentElement.setAttribute("data-width", next);
-        localStorage.setItem("content-width", next);
+        try {
+          localStorage.setItem("content-width", next);
+        } catch (e) {
+          console.warn("localStorage is not available:", e);
+        }
       });
     }
   })();
