@@ -35,9 +35,11 @@ blog/
 ├── templates/              # 記事テンプレ（zenn-blogから移植済み）
 │   ├── article-template.md # frontmatterをAstro用に変更済み
 │   ├── outline-agent.md    # koto-log編の見出し例
-│   └── outline-rag.md      # biblio-rag編の見出し例
+│   ├── outline-rag.md      # biblio-rag編の見出し例
+│   └── outline-claude-code.md  # Claude Code編の見出し例
 └── docs/
     ├── architecture.md     # このファイル
+    ├── blog-strategy.md    # 方向性・2本柱・参考ブログ分析（2026年7月改訂）
     └── writing-guide.md    # 執筆規約（シリーズ計画表を含む）
 ```
 
