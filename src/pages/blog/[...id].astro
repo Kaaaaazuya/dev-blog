@@ -3,6 +3,7 @@ import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import AdSlot from "../../components/AdSlot.astro";
 import { includeDrafts } from "../../lib/blog-filter";
+import { getSeriesNavigation, getRelatedPosts } from "../../lib/post-nav";
 
 export async function getStaticPaths() {
   // 本番はdraft除外、dev/PRプレビューではdraftも表示する
@@ -15,6 +16,15 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+
+// Fetch all posts for navigation and related posts
+const allPosts = await getCollection(
+  "blog",
+  ({ data }) => includeDrafts || !data.draft,
+);
+
+const seriesNav = getSeriesNavigation(post, allPosts);
+const relatedPosts = getRelatedPosts(post, allPosts, 3);
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
@@ -59,6 +69,56 @@ const { Content } = await render(post);
     <div class="prose">
       <Content />
     </div>
+
+    {/* Series Navigation */}
+    {
+      (seriesNav.prev || seriesNav.next) && (
+        <nav class="series-nav">
+          <div class="series-nav-label">同シリーズ</div>
+          <div class="series-nav-items">
+            {seriesNav.prev && (
+              <a
+                href={`/blog/${seriesNav.prev.id}`}
+                class="series-nav-link series-nav-prev"
+              >
+                <span class="nav-arrow">← 前の記事</span>
+                <span class="nav-title">{seriesNav.prev.data.title}</span>
+              </a>
+            )}
+            {seriesNav.next && (
+              <a
+                href={`/blog/${seriesNav.next.id}`}
+                class="series-nav-link series-nav-next"
+              >
+                <span class="nav-arrow">次の記事 →</span>
+                <span class="nav-title">{seriesNav.next.data.title}</span>
+              </a>
+            )}
+          </div>
+        </nav>
+      )
+    }
+
+    {/* Related Posts */}
+    {
+      relatedPosts.posts.length > 0 && (
+        <section class="related-posts">
+          <h3 class="related-posts-title">関連記事</h3>
+          <ul class="related-posts-list">
+            {relatedPosts.posts.map((relatedPost) => (
+              <li class="related-posts-item">
+                <a href={`/blog/${relatedPost.id}`} class="related-post-link">
+                  {relatedPost.data.title}
+                </a>
+                <span class="related-post-date">
+                  {relatedPost.data.pubDate.toISOString().slice(0, 10)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
 
     <AdSlot slot="TODO-下部ユニットID" />
   </article>
@@ -122,6 +182,123 @@ const { Content } = await render(post);
     background: var(--code);
     border-radius: 5px;
     padding: 2px 6px;
+  }
+
+  /* Series Navigation */
+  .series-nav {
+    margin: 40px 0 32px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+  }
+
+  .series-nav-label {
+    font-size: 12px;
+    font-family: "IBM Plex Mono", monospace;
+    color: var(--muted);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .series-nav-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .series-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+  }
+
+  .series-nav-link:hover {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+
+  .nav-arrow {
+    font-size: 12px;
+    font-family: "IBM Plex Mono", monospace;
+    color: var(--accent);
+  }
+
+  .nav-title {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 640px) {
+    .series-nav-items {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Related Posts */
+  .related-posts {
+    margin: 40px 0 32px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+  }
+
+  .related-posts-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 16px;
+    padding: 0;
+    color: var(--text);
+  }
+
+  .related-posts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .related-posts-item {
+    padding: 0;
+    margin: 0;
+  }
+
+  .related-post-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--accent);
+    transition: all 0.2s ease;
+  }
+
+  .related-post-link:hover {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+
+  .related-post-date {
+    font-size: 12px;
+    font-family: "IBM Plex Mono", monospace;
+    color: var(--muted);
+    white-space: nowrap;
   }
 </style>
 
