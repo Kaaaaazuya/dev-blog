@@ -34,7 +34,7 @@
 - シリーズ紐付けとslug規則:
   - AIアーキテクチャ編: `series: "ai-architecture"`、slug `ai-arch-<連番2桁>-<英語テーマ>.md`
   - Claude Code編: `series: "claude-code"`、slug `cc-<連番2桁>-<英語テーマ>.md`
-  - 入口ハブ記事（B-0等）: slug `intro-<英語テーマ>.md`、`series` は誘導先シリーズに合わせる
+  - 入口ハブ記事（B-0等）: slug `intro-<英語テーマ>.md`、`series` は誘導先シリーズに合わせる。ただしシリーズ第1回がハブを兼ねる場合（D-1 = cc-01等）はシリーズのslug規則を優先する
 
 ## 記事間リンク（シリーズの接続・ハブ&スポーク）
 
