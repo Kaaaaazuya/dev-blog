@@ -46,7 +46,7 @@ const canonicalURL = new URL(pathname, Astro.site ?? Astro.url);
         <script
           type="application/ld+json"
           is:inline
-          set:html={JSON.stringify(jsonLd)}
+          set:html={JSON.stringify(jsonLd).replace(/</g, "\\u003c")}
         />
       )
     }

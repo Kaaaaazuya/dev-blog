@@ -22,31 +22,21 @@ export function getSeriesNavigation(
 
   // Filter posts in the same series and sort by pubDate
   const seriesPosts = allPosts
-    .filter(
-      (post) =>
-        post.data.series === currentPost.data.series &&
-        post.id !== currentPost.id,
-    )
+    .filter((post) => post.data.series === currentPost.data.series)
     .sort((a, b) => a.data.pubDate.getTime() - b.data.pubDate.getTime());
 
-  if (seriesPosts.length === 0) {
+  const currentIndex = seriesPosts.findIndex(
+    (post) => post.id === currentPost.id,
+  );
+  if (currentIndex === -1) {
     return {};
   }
 
-  // Find current post's index in sorted series
-  const currentDate = currentPost.data.pubDate.getTime();
-  let prev: CollectionEntry<"blog"> | undefined;
-  let next: CollectionEntry<"blog"> | undefined;
-
-  for (let i = 0; i < seriesPosts.length; i++) {
-    const postDate = seriesPosts[i].data.pubDate.getTime();
-    if (postDate < currentDate) {
-      prev = seriesPosts[i];
-    } else if (postDate > currentDate && !next) {
-      next = seriesPosts[i];
-      break;
-    }
-  }
+  const prev = currentIndex > 0 ? seriesPosts[currentIndex - 1] : undefined;
+  const next =
+    currentIndex < seriesPosts.length - 1
+      ? seriesPosts[currentIndex + 1]
+      : undefined;
 
   return { prev, next };
 }

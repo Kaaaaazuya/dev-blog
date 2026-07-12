@@ -27,8 +27,12 @@ for (const heading of tocHeadings) {
       groupedHeadings.push(currentGroup);
     }
     currentGroup = { heading, children: [] };
-  } else if (heading.depth === 3 && currentGroup) {
-    currentGroup.children.push(heading);
+  } else if (heading.depth === 3) {
+    if (currentGroup) {
+      currentGroup.children.push(heading);
+    } else {
+      groupedHeadings.push({ heading, children: [] });
+    }
   }
 }
 
