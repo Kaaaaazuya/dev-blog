@@ -1,0 +1,74 @@
+name: Link Check
+
+on:
+  schedule:
+    # 週次: 月曜日 03:00 UTC
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - name: Check links in markdown files
+        uses: lycheeverse/lychee-action@19aeda82b4e10f8a0a76f6c29f1d4c31eecfb28c # v1
+        with:
+          args: --no-progress './src/content/blog/**/*.md' './*.md'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create issue on link check failure
+        if: failure()
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- link-check-report -->';
+
+            // lychee-actionが出力したレポートを読む
+            const reportPath = './lychee/out.md';
+            let reportBody = '';
+            if (fs.existsSync(reportPath)) {
+              reportBody = fs.readFileSync(reportPath, 'utf8');
+            } else {
+              reportBody = '詳細なレポートを取得できませんでした。ワークフローの実行ログを確認してください。';
+            }
+
+            const body = [
+              marker,
+              '## 🔗 リンク切れが検知されました',
+              '',
+              '週次のリンク切れチェックで問題が検出されました。以下のリンクを確認し、修正してください。',
+              '',
+              '```',
+              reportBody.slice(0, 3000),  // 最初の3000文字に制限
+              '```',
+              '',
+              `詳細はワークフロー実行ログをご確認ください: ${context.payload.repository.html_url}/actions/runs/${context.runId}`,
+            ].join('\n');
+
+            const { owner, repo } = context.repo;
+            const issues = await github.paginate(
+              github.rest.issues.list,
+              { owner, repo, state: 'open', labels: 'link-check' },
+            );
+
+            const existing = issues.find((i) => i.body.includes(marker));
+            if (existing) {
+              // 既存のissueを更新
+              await github.rest.issues.update({
+                owner, repo, issue_number: existing.number, body,
+              });
+            } else {
+              // 新しいissueを作成
+              await github.rest.issues.create({
+                owner,
+                repo,
+                title: '🔗 リンク切れが検知されました',
+                body,
+                labels: ['link-check'],
+              });
+            }
