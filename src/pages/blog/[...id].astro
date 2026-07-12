@@ -29,6 +29,7 @@ const relatedPosts = getRelatedPosts(post, allPosts, 3);
 
 const AUTHOR_NAME = "kinakomochio";
 const SITE_URL = Astro.site ?? "https://kinakomochio.yk3kzy.workers.dev";
+const ogImageURL = new URL(`/og/${post.id}.png`, SITE_URL).toString();
 
 // Build JSON-LD BlogPosting schema
 const jsonLd = {
@@ -53,6 +54,7 @@ const jsonLd = {
   title={post.data.title}
   description={post.data.description}
   jsonLd={jsonLd}
+  image={ogImageURL}
 >
   <article>
     <p
