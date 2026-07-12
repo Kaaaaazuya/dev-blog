@@ -3,6 +3,14 @@ name: Preview
 on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "astro.config.mjs"
+      - "wrangler.toml"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "tsconfig.json"
 
 # 同一PRの連続pushでは古い実行をキャンセルする
 concurrency:
