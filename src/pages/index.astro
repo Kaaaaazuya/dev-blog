@@ -7,6 +7,9 @@ import { includeDrafts } from "../lib/blog-filter";
 const posts = (
   await getCollection("blog", ({ data }) => includeDrafts || !data.draft)
 ).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// フィルタ用: 全記事のタグを重複なく集めてソート
+const allTags = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 ---
 
 <BaseLayout title="記事一覧">
@@ -15,12 +18,47 @@ const posts = (
   >
     <span class="text-[var(--accent)]">$</span> AIプロダクトの設計と実装を、作って学んだ記録
   </p>
-  <div class="flex flex-col gap-[14px]">
+
+  {
+    allTags.length > 0 && (
+      <div
+        id="filter-bar"
+        class="mb-6 flex flex-wrap items-center gap-2"
+        aria-label="タグで絞り込み"
+      >
+        <span class="mr-1 font-['IBM_Plex_Mono',monospace] text-[11.5px] text-[var(--muted)]">
+          filter:
+        </span>
+        <button
+          type="button"
+          data-filter-tag=""
+          aria-pressed="true"
+          class="cursor-pointer rounded-full border border-[var(--line)] px-[10px] py-[3px] font-['IBM_Plex_Mono',monospace] text-[11.5px] text-[var(--muted)] transition-colors hover:border-[var(--accent)] aria-pressed:border-[var(--accent)] aria-pressed:text-[var(--accent)]"
+        >
+          all
+        </button>
+        {allTags.map((tag) => (
+          <button
+            type="button"
+            data-filter-tag={tag}
+            aria-pressed="false"
+            class="cursor-pointer rounded-full border border-[var(--line)] px-[10px] py-[3px] font-['IBM_Plex_Mono',monospace] text-[11.5px] text-[var(--muted)] transition-colors hover:border-[var(--accent)] aria-pressed:border-[var(--accent)] aria-pressed:text-[var(--accent)]"
+          >
+            {tag}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  <div id="post-list" class="flex flex-col gap-[14px]">
     {
       posts.map((post) => (
         <a
-          class="flex flex-col gap-[10px] rounded-lg border border-[var(--line)] bg-[var(--surface)] px-6 py-[22px] text-inherit no-underline transition-colors duration-150 hover:border-[var(--accent)] hover:text-inherit"
+          class="post-card flex flex-col gap-[10px] rounded-lg border border-[var(--line)] bg-[var(--surface)] px-6 py-[22px] text-inherit no-underline transition-colors duration-150 hover:border-[var(--accent)] hover:text-inherit"
           href={`/blog/${post.id}/`}
+          data-tags={JSON.stringify(post.data.tags)}
+          data-series={post.data.series ?? ""}
         >
           <div class="flex items-center justify-between gap-3">
             <div class="flex flex-wrap gap-2">
@@ -47,4 +85,80 @@ const posts = (
       ))
     }
   </div>
+
+  <p
+    id="empty-state"
+    hidden
+    class="mt-6 font-['IBM_Plex_Mono',monospace] text-[12.5px] text-[var(--muted)]"
+  >
+    該当する記事がありません。
+  </p>
 </BaseLayout>
+
+<script>
+  // 一覧のクライアントサイド絞り込み。
+  // タグ: filter-barのボタン / URLの ?tag=
+  // シリーズ: 記事ページからの ?series= リンク（filter-barには出さず、URL経由でのみ効く）
+  // data-tags は初期化時に一度だけパースしてキャッシュする（クリック毎の再パースを避ける）
+  const cards = [...document.querySelectorAll<HTMLElement>(".post-card")].map(
+    (element) => {
+      let tags: string[] = [];
+      try {
+        tags = JSON.parse(element.dataset.tags ?? "[]");
+      } catch (e) {
+        console.error("Failed to parse data-tags:", element, e);
+      }
+      return { element, series: element.dataset.series ?? "", tags };
+    },
+  );
+  const tagButtons = [
+    ...document.querySelectorAll<HTMLButtonElement>("[data-filter-tag]"),
+  ];
+  const emptyState = document.getElementById("empty-state");
+
+  // type: "tag" | "series"、value: 空文字なら全件表示
+  function applyFilter(type: "tag" | "series", value: string) {
+    let visible = 0;
+    for (const card of cards) {
+      const match =
+        value === "" ||
+        (type === "series" ? card.series === value : card.tags.includes(value));
+      card.element.hidden = !match;
+      if (match) visible++;
+    }
+    // タグボタンの押下状態は、タグフィルタのときだけ同期（シリーズ時は all も含め非活性）
+    for (const btn of tagButtons) {
+      const pressed = type === "tag" && btn.dataset.filterTag === value;
+      btn.setAttribute("aria-pressed", String(pressed));
+    }
+    if (emptyState) emptyState.hidden = visible !== 0;
+  }
+
+  function syncFromURL() {
+    const params = new URLSearchParams(location.search);
+    const series = params.get("series");
+    const tag = params.get("tag");
+    if (series) applyFilter("series", series);
+    else applyFilter("tag", tag ?? "");
+  }
+
+  for (const btn of tagButtons) {
+    btn.addEventListener("click", () => {
+      const value = btn.dataset.filterTag ?? "";
+      const params = new URLSearchParams(location.search);
+      // 同じタグを再クリックし、かつシリーズ絞り込み中でなければ履歴を汚さない
+      if (value === (params.get("tag") ?? "") && !params.get("series")) return;
+      applyFilter("tag", value);
+      // URLへ反映（?series= は解除、履歴を汚さず戻れるように pushState）
+      params.delete("series");
+      if (value) params.set("tag", value);
+      else params.delete("tag");
+      const query = params.toString();
+      history.pushState({}, "", query ? `?${query}` : location.pathname);
+    });
+  }
+
+  // 戻る/進む でも表示を同期
+  window.addEventListener("popstate", syncFromURL);
+  syncFromURL();
+</script>
