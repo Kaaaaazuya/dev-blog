@@ -14,6 +14,13 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   markdown: {
+    shikiConfig: {
+      themes: {
+        light: "github-light",
+        dark: "github-dark",
+      },
+      defaultColor: false,
+    },
     processor: unified({
       remarkPlugins: [remarkMermaid],
       rehypePlugins: [

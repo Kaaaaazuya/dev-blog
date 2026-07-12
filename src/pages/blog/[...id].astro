@@ -214,6 +214,26 @@ const jsonLd = {
     font:
       13px/1.75 "IBM Plex Mono",
       monospace;
+    position: relative;
+  }
+  .prose :global(pre [data-copy-button]) {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 6px 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--accent);
+    font-size: 12px;
+    font-family: "IBM Plex Mono", monospace;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .prose :global(pre [data-copy-button]:hover) {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
   }
   .prose :global(code) {
     font-family: "IBM Plex Mono", monospace;
@@ -361,11 +381,85 @@ const jsonLd = {
 </style>
 
 <script>
+  // コードブロックのコピーボタン機能
+  function initCopyButtons() {
+    const codeBlocks = document.querySelectorAll<HTMLPreElement>(
+      ".prose > pre:not(.mermaid)",
+    );
+    codeBlocks.forEach((pre) => {
+      if (pre.querySelector("[data-copy-button]")) return; // 既に追加済み
+
+      const button = document.createElement("button");
+      button.setAttribute("data-copy-button", "");
+      button.textContent = "Copy";
+      button.type = "button";
+
+      button.addEventListener("click", async () => {
+        const code = pre.textContent ?? "";
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalText = button.textContent;
+          button.textContent = "Copied!";
+          setTimeout(() => {
+            button.textContent = originalText;
+          }, 1500);
+        } catch (err) {
+          console.error("Failed to copy:", err);
+        }
+      });
+
+      pre.appendChild(button);
+    });
+  }
+
   // mermaid ブロックがあるページだけ動的import（チャンク分割されるので他ページに影響なし）
-  const blocks = document.querySelectorAll<HTMLElement>("pre.mermaid");
-  if (blocks.length > 0) {
+  async function initMermaid() {
+    const blocks = document.querySelectorAll<HTMLElement>("pre.mermaid");
+    if (blocks.length === 0) return;
+
     const { default: mermaid } = await import("mermaid");
-    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+
+    function getMermaidTheme(): "dark" | "neutral" {
+      const theme = document.documentElement.getAttribute("data-theme");
+      return theme === "dark" ? "dark" : "neutral";
+    }
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: getMermaidTheme(),
+    });
     await mermaid.run({ nodes: [...blocks] });
+
+    // テーマ切替時にmermaidを再レンダリング
+    const themeToggle = document.getElementById("theme-toggle");
+    if (themeToggle) {
+      themeToggle.addEventListener("click", async () => {
+        // theme切替が完了するのを待つ
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        const newTheme = getMermaidTheme();
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: newTheme,
+        });
+
+        // mermaidダイアグラムを再レンダリング
+        blocks.forEach((block) => {
+          block.removeAttribute("data-processed");
+        });
+        await mermaid.run({ nodes: [...blocks] });
+      });
+    }
+  }
+
+  // DOMContentLoaded時に初期化
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      initCopyButtons();
+      initMermaid();
+    });
+  } else {
+    initCopyButtons();
+    initMermaid();
   }
 </script>
