@@ -1,12 +1,12 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { includeDrafts } from "../lib/blog-filter";
+import { createBlogFilter } from "../lib/blog-filter";
 
-// 本番はdraft除外、dev/PRプレビューではdraftも表示する
-const posts = (
-  await getCollection("blog", ({ data }) => includeDrafts || !data.draft)
-).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+// 本番はdraft・未来日付除外、dev/PRプレビューではすべて表示する
+const posts = (await getCollection("blog", createBlogFilter())).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
 
 // フィルタ用: 全記事のタグを重複なく集めてソート
 const allTags = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
