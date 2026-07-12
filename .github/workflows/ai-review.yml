@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: write
     outputs:
       should_run: ${{ steps.detect.outputs.should_run }}
       files: ${{ steps.detect.outputs.files }}
