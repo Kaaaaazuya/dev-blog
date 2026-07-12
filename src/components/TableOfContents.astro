@@ -1,0 +1,122 @@
+---
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+// Filter to only h2 and h3 headings for the TOC
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+
+// Group headings by h2s with their h3s
+const groupedHeadings: Array<{
+  heading: MarkdownHeading;
+  children: MarkdownHeading[];
+}> = [];
+
+let currentGroup: {
+  heading: MarkdownHeading;
+  children: MarkdownHeading[];
+} | null = null;
+
+for (const heading of tocHeadings) {
+  if (heading.depth === 2) {
+    if (currentGroup) {
+      groupedHeadings.push(currentGroup);
+    }
+    currentGroup = { heading, children: [] };
+  } else if (heading.depth === 3 && currentGroup) {
+    currentGroup.children.push(heading);
+  }
+}
+
+if (currentGroup) {
+  groupedHeadings.push(currentGroup);
+}
+---
+
+{
+  tocHeadings.length > 0 && (
+    <nav class="toc-nav">
+      <details open>
+        <summary class="toc-summary">目次</summary>
+        <ul class="toc-list">
+          {groupedHeadings.map(({ heading, children }) => (
+            <li>
+              <a href={`#${heading.slug}`}>{heading.text}</a>
+              {children.length > 0 && (
+                <ul class="toc-sublist">
+                  {children.map((child) => (
+                    <li>
+                      <a href={`#${child.slug}`}>{child.text}</a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      </details>
+    </nav>
+  )
+}
+
+<style>
+  .toc-nav {
+    margin-bottom: 2rem;
+  }
+
+  .toc-summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 12px;
+    margin: -8px -12px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+  }
+
+  .toc-summary:hover {
+    background-color: var(--surface);
+  }
+
+  details[open] .toc-summary {
+    margin-bottom: 8px;
+  }
+
+  .toc-list,
+  .toc-sublist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .toc-list li {
+    margin: 4px 0;
+  }
+
+  .toc-list a {
+    display: inline-block;
+    padding: 4px 0;
+    font-size: 14px;
+    color: var(--accent);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .toc-list a:hover {
+    opacity: 0.7;
+  }
+
+  .toc-sublist {
+    margin: 4px 0 4px 16px;
+    border-left: 1px solid var(--line);
+    padding-left: 12px;
+  }
+
+  .toc-sublist a {
+    font-size: 13px;
+  }
+</style>
