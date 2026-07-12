@@ -32,3 +32,15 @@ body {
     background-color 0.2s,
     color 0.2s;
 }
+
+/* Shiki dual-theme support: defaultColor:false emits only CSS variables,
+   so the token color must be applied explicitly here. Background is left
+   to the site's own --code token (see .prose pre) for visual consistency. */
+pre.astro-code,
+pre.astro-code span {
+  color: var(--shiki-light);
+}
+html[data-theme="dark"] pre.astro-code,
+html[data-theme="dark"] pre.astro-code span {
+  color: var(--shiki-dark);
+}
