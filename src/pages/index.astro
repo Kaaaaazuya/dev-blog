@@ -1,10 +1,11 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { includeDrafts } from "../lib/blog-filter";
 
-// 本番はdraft除外、devプレビュー（pnpm dev）ではdraftも表示する
+// 本番はdraft除外、dev/PRプレビューではdraftも表示する
 const posts = (
-  await getCollection("blog", ({ data }) => import.meta.env.DEV || !data.draft)
+  await getCollection("blog", ({ data }) => includeDrafts || !data.draft)
 ).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 

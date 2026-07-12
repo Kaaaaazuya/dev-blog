@@ -29,13 +29,14 @@ cp templates/article-template.md src/content/blog/ai-arch-01-llm-responsibility.
 
 **前提**: `brew install gitleaks`（秘密情報スキャン。未インストールだとpre-commitが失敗する）
 
-| タイミング      | 実行内容                                                                                      |
-| --------------- | --------------------------------------------------------------------------------------------- |
-| pre-commit      | lint-staged（Prettier + ESLint --fix、警告0）→ gitleaks（staged差分の秘密情報スキャン）       |
-| pre-push        | `pnpm typecheck`（astro check、strict設定）                                                   |
-| CI (quality)    | format:check / lint / typecheck / build / actionlint（workflowファイルの構文検証）            |
-| CI (security)   | gitleaks（全履歴）/ `pnpm audit --audit-level=high` / Dependabot（週次）                      |
-| CI (AIレビュー) | 記事追加PRに claude-code-action で観点別レビュー（炎上リスク / 情報漏洩 / SEO）・non-blocking |
+| タイミング      | 実行内容                                                                                           |
+| --------------- | -------------------------------------------------------------------------------------------------- |
+| pre-commit      | lint-staged（Prettier + ESLint --fix、警告0）→ gitleaks（staged差分の秘密情報スキャン）            |
+| pre-push        | `pnpm typecheck`（astro check、strict設定）                                                        |
+| CI (quality)    | format:check / lint / typecheck / build / actionlint（workflowファイルの構文検証）                 |
+| CI (security)   | gitleaks（全履歴）/ `pnpm audit --audit-level=high` / Dependabot（週次）                           |
+| CI (AIレビュー) | 記事追加PRに claude-code-action で観点別レビュー（炎上リスク / 情報漏洩 / SEO）・non-blocking      |
+| PR プレビュー   | PRごとに `wrangler versions upload` でdraft記事も含むプレビューをアップロードし、URLをPRにコメント |
 
 - git hooksは `pnpm install` 時に `prepare` スクリプト（simple-git-hooks）が自動登録する
 - 手動実行: `pnpm format` / `pnpm lint` / `pnpm typecheck`

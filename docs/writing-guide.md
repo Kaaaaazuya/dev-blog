@@ -53,7 +53,7 @@
 - [ ] 前回リンク・次回予告があるか
 - [ ] 本文4,000〜8,000字か（タグ除去後の概算）
 - [ ] `pnpm format` / `lint` / `typecheck` / `build` が通るか（pre-commitでも強制される）
-- [ ] `pnpm dev` で表示確認（mermaid・コードブロック・リンク切れ）
+- [ ] `pnpm dev` で表示確認（mermaid・コードブロック・リンク切れ）。PR作成後は `Preview` ワークフローがPRにコメントするプレビューURL（draft記事も表示される）でも確認できる
 
 ## シリーズ計画
 
