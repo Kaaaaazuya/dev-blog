@@ -5,4 +5,5 @@
  * - PRプレビュービルド（PREVIEW_MODE=true）: draftも表示
  */
 export const includeDrafts =
-  import.meta.env.DEV || process.env.PREVIEW_MODE === "true";
+  import.meta.env.DEV ||
+  (typeof process !== "undefined" && process.env.PREVIEW_MODE === "true");
