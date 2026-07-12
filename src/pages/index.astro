@@ -56,7 +56,7 @@ const allTags = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
         <a
           class="post-card flex flex-col gap-[10px] rounded-lg border border-[var(--line)] bg-[var(--surface)] px-6 py-[22px] text-inherit no-underline transition-colors duration-150 hover:border-[var(--accent)] hover:text-inherit"
           href={`/blog/${post.id}/`}
-          data-tags={post.data.tags.join(" ")}
+          data-tags={JSON.stringify(post.data.tags)}
           data-series={post.data.series ?? ""}
         >
           <div class="flex items-center justify-between gap-3">
@@ -87,7 +87,8 @@ const allTags = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 
   <p
     id="empty-state"
-    class="mt-6 hidden font-['IBM_Plex_Mono',monospace] text-[12.5px] text-[var(--muted)]"
+    hidden
+    class="mt-6 font-['IBM_Plex_Mono',monospace] text-[12.5px] text-[var(--muted)]"
   >
     該当する記事がありません。
   </p>
@@ -111,7 +112,7 @@ const allTags = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
         value === "" ||
         (type === "series"
           ? card.dataset.series === value
-          : (card.dataset.tags ?? "").split(" ").includes(value));
+          : JSON.parse(card.dataset.tags ?? "[]").includes(value));
       card.hidden = !match;
       if (match) visible++;
     }

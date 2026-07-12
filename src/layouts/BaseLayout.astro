@@ -113,7 +113,7 @@ const canonicalURL = new URL(pathname, Astro.site ?? Astro.url);
       <slot />
     </main>
     <footer
-      class="mx-auto flex max-w-[var(--content-max)] justify-between border-t border-[var(--line)] px-10 pt-5 pb-8 font-['IBM_Plex_Mono',monospace] text-xs text-[var(--muted)]"
+      class="mx-auto flex max-w-[var(--content-max)] justify-between border-t border-[var(--line)] px-10 pt-5 pb-8 font-['IBM_Plex_Mono',monospace] text-xs text-[var(--muted)] transition-[max-width] duration-200"
     >
       <span>© {new Date().getFullYear()} kinakomochio</span>
       <div class="flex gap-4">
