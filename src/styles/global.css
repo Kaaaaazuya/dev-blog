@@ -33,14 +33,14 @@ body {
     color 0.2s;
 }
 
-/* Shiki dual-theme support: use light theme colors by default */
-code {
-  --shiki-color: var(--shiki-light);
-  --shiki-bg: var(--shiki-light-bg);
+/* Shiki dual-theme support: defaultColor:false emits only CSS variables,
+   so the token color must be applied explicitly here. Background is left
+   to the site's own --code token (see .prose pre) for visual consistency. */
+pre.astro-code,
+pre.astro-code span {
+  color: var(--shiki-light);
 }
-
-/* Switch to dark theme colors when data-theme="dark" */
-html[data-theme="dark"] code {
-  --shiki-color: var(--shiki-dark);
-  --shiki-bg: var(--shiki-dark-bg);
+html[data-theme="dark"] pre.astro-code,
+html[data-theme="dark"] pre.astro-code span {
+  color: var(--shiki-dark);
 }
