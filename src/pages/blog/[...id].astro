@@ -3,15 +3,12 @@ import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import AdSlot from "../../components/AdSlot.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
-import { includeDrafts } from "../../lib/blog-filter";
+import { createBlogFilter } from "../../lib/blog-filter";
 import { getSeriesNavigation, getRelatedPosts } from "../../lib/post-nav";
 
 export async function getStaticPaths() {
-  // 本番はdraft除外、dev/PRプレビューではdraftも表示する
-  const posts = await getCollection(
-    "blog",
-    ({ data }) => includeDrafts || !data.draft,
-  );
+  // 本番はdraft・未来日付除外、dev/PRプレビューではすべて表示する
+  const posts = await getCollection("blog", createBlogFilter());
   return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
 }
 
@@ -19,10 +16,7 @@ const { post } = Astro.props;
 const { Content, headings } = await render(post);
 
 // Fetch all posts for navigation and related posts
-const allPosts = await getCollection(
-  "blog",
-  ({ data }) => includeDrafts || !data.draft,
-);
+const allPosts = await getCollection("blog", createBlogFilter());
 
 const seriesNav = getSeriesNavigation(post, allPosts);
 const relatedPosts = getRelatedPosts(post, allPosts, 3);
