@@ -4,7 +4,7 @@ description: "RAG（検索拡張生成）を一般論ではなく、自作の日
 pubDate: 2026-07-12
 tags: ["rag", "llm", "ai", "vector-search"]
 series: "ai-architecture"
-draft: true
+draft: false
 ---
 
 ## はじめに
