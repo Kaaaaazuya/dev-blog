@@ -4,6 +4,7 @@
 // TODO(head内): アクセス解析（Cloudflare Web Analytics）タグを追加
 // ※HTMLコメントは出力に残るため、TODOはこのfrontmatter側に書く
 import ThemeToggle from "../components/ThemeToggle.astro";
+import WidthToggle from "../components/WidthToggle.astro";
 import "../styles/global.css";
 
 interface Props {
@@ -51,7 +52,7 @@ const canonicalURL = new URL(pathname, Astro.site ?? Astro.url);
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <!-- テーマのちらつき(FOUC)防止: 描画前に data-theme を確定させる -->
+    <!-- テーマ・表示幅のちらつき(FOUC)防止: 描画前に data-theme / data-width を確定させる -->
     <script is:inline>
       (function () {
         const stored = localStorage.getItem("theme");
@@ -61,6 +62,8 @@ const canonicalURL = new URL(pathname, Astro.site ?? Astro.url);
             ? "dark"
             : "light");
         document.documentElement.setAttribute("data-theme", theme);
+        const width = localStorage.getItem("content-width") || "narrow";
+        document.documentElement.setAttribute("data-width", width);
       })();
     </script>
   </head>
@@ -100,14 +103,17 @@ const canonicalURL = new URL(pathname, Astro.site ?? Astro.url);
             >contact</a
           >
         </nav>
+        <WidthToggle />
         <ThemeToggle />
       </div>
     </header>
-    <main class="mx-auto max-w-[680px] px-10 pt-12 pb-[60px]">
+    <main
+      class="mx-auto max-w-[var(--content-max)] px-10 pt-12 pb-[60px] transition-[max-width] duration-200"
+    >
       <slot />
     </main>
     <footer
-      class="mx-auto flex max-w-[680px] justify-between border-t border-[var(--line)] px-10 pt-5 pb-8 font-['IBM_Plex_Mono',monospace] text-xs text-[var(--muted)]"
+      class="mx-auto flex max-w-[var(--content-max)] justify-between border-t border-[var(--line)] px-10 pt-5 pb-8 font-['IBM_Plex_Mono',monospace] text-xs text-[var(--muted)]"
     >
       <span>© {new Date().getFullYear()} kinakomochio</span>
       <div class="flex gap-4">

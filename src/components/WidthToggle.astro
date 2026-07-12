@@ -1,0 +1,53 @@
+---
+// 表示幅（narrow/wide）切替ボタン。localStorageに保存し、BaseLayoutのFOUC防止スクリプトと対になる。
+---
+
+<button
+  id="width-toggle"
+  aria-label="表示幅切替"
+  type="button"
+  class="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-md border border-[var(--line)] bg-transparent text-[var(--fg)] hover:border-[var(--accent)]"
+>
+  <!-- narrow時: 外向き矢印（広げる） -->
+  <svg
+    class="icon-expand block [html[data-width=wide]_&]:hidden"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M9 5H5v4M15 5h4v4M9 19H5v-4M15 19h4v-4"></path>
+  </svg>
+  <!-- wide時: 内向き矢印（狭める） -->
+  <svg
+    class="icon-collapse hidden [html[data-width=wide]_&]:block"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M5 9h4V5M19 9h-4V5M5 15h4v4M19 15h-4v4"></path>
+  </svg>
+</button>
+
+<script is:inline>
+  (function () {
+    const btn = document.getElementById("width-toggle");
+    if (btn) {
+      btn.addEventListener("click", function () {
+        const current = document.documentElement.getAttribute("data-width");
+        const next = current === "wide" ? "narrow" : "wide";
+        document.documentElement.setAttribute("data-width", next);
+        localStorage.setItem("content-width", next);
+      });
+    }
+  })();
+</script>

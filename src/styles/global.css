@@ -8,6 +8,11 @@
   --accent: #0e7c5a;
   --surface: #fcfdfc;
   --code: #ebeeeb;
+  /* 本文・一覧の最大幅。WidthToggleでnarrow/wideを切り替える */
+  --content-max: 680px;
+}
+html[data-width="wide"] {
+  --content-max: 920px;
 }
 html[data-theme="dark"] {
   --bg: #0f1412;
