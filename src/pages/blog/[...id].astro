@@ -25,9 +25,34 @@ const allPosts = await getCollection(
 
 const seriesNav = getSeriesNavigation(post, allPosts);
 const relatedPosts = getRelatedPosts(post, allPosts, 3);
+
+const AUTHOR_NAME = "kinakomochio";
+const SITE_URL = Astro.site ?? "https://kinakomochio.yk3kzy.workers.dev";
+
+// Build JSON-LD BlogPosting schema
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.pubDate.toISOString(),
+  dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
+  author: {
+    "@type": "Person",
+    name: AUTHOR_NAME,
+  },
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": new URL(`/blog/${post.id}/`, SITE_URL).toString(),
+  },
+};
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description}>
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  jsonLd={jsonLd}
+>
   <article>
     <p
       class="mb-[14px] font-['IBM_Plex_Mono',monospace] text-[12.5px] text-[var(--muted)]"
@@ -48,6 +73,19 @@ const relatedPosts = getRelatedPosts(post, allPosts, 3);
       <time datetime={post.data.pubDate.toISOString()}>
         {post.data.pubDate.toISOString().slice(0, 10)}
       </time>
+      {
+        post.data.updatedDate &&
+          post.data.updatedDate.getTime() !== post.data.pubDate.getTime() && (
+            <>
+              {" 公開（"}
+              <time datetime={post.data.updatedDate.toISOString()}>
+                {post.data.updatedDate.toISOString().slice(0, 10)}
+              </time>
+              {" 更新）"}
+            </>
+          )
+      }
+      {!post.data.updatedDate && " 公開"}
     </p>
     <h1 class="mb-4 text-[25px] leading-[1.65] font-bold tracking-[-0.01em]">
       {post.data.title}
