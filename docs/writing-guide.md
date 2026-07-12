@@ -34,6 +34,7 @@
 - シリーズ紐付けとslug規則:
   - AIアーキテクチャ編: `series: "ai-architecture"`、slug `ai-arch-<連番2桁>-<英語テーマ>.md`
   - Claude Code編: `series: "claude-code"`、slug `cc-<連番2桁>-<英語テーマ>.md`
+  - ブログ自体編: `series: "blog-craft"`、slug `blog-<連番2桁>-<英語テーマ>.md`
   - 入口ハブ記事（B-0等）: slug `intro-<英語テーマ>.md`、`series` は誘導先シリーズに合わせる。ただしシリーズ第1回がハブを兼ねる場合（D-1 = cc-01等）はシリーズのslug規則を優先する
 
 ## 記事間リンク（シリーズの接続・ハブ&スポーク）
@@ -101,6 +102,20 @@
 | 06  | cc-06-things-didnt-work | Claude Code運用でうまくいかなかったこと集       | D-6    |
 | 07  | cc-07-minimal-hooks     | フック最小導入とチェック集約の判断              | D-7    |
 | 08  | cc-08-atr-gate          | ATRによるスキル改ざん検知ゲート                 | D-8    |
+
+### ブログ自体編（series: "blog-craft"）
+
+シリーズ内の順序に依存しない単発記事群。軽量記事枠を積極的に使う。
+
+| #   | slug                      | テーマ                                      | 元ネタ |
+| --- | ------------------------- | ------------------------------------------- | ------ |
+| 01  | blog-01-pnpm-supply-chain | pnpmで固めるサプライチェーン対策            | F-1    |
+| 02  | blog-02-textlint-prh      | textlint+prhの日本語校正パイプライン        | F-2    |
+| 03  | blog-03-astro-cf-workers  | Astro+Workers静的配信とタグ駆動デプロイ     | F-3    |
+| 04  | blog-04-remark-mermaid    | remarkプラグイン自作でmermaid描画           | F-4    |
+| 05  | blog-05-vitest-content    | Markdownコンテンツをvitestでテストする      | F-5    |
+| 06  | blog-06-pr-preview        | PRごとのWorkersプレビュー環境               | F-6    |
+| 07  | blog-07-adsense-prep      | AdSense対応の下準備（審査結果が出たら執筆） | F-7    |
 
 ### 未実装バックログ（E系）
 
