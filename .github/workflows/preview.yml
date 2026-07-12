@@ -52,9 +52,8 @@ jobs:
       - name: Comment preview URL
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         with:
-          script: |
+          script: | # zizmor: ignore[template-injection] -- toJSON() safely escapes the value
             const marker = '<!-- preview-url-comment -->';
-            // zizmor:allow template-injection -- toJSON() safely escapes the value
             const url = ${{ toJSON(steps.upload.outputs.url) }};
             const sha = context.payload.pull_request.head.sha.slice(0, 7);
             const body = [

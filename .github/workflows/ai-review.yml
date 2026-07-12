@@ -86,6 +86,7 @@ jobs:
             cat ".github/ai-review/prompts/${PERSPECTIVE}.md"
             echo 'PROMPT_EOF'
           } >> "$GITHUB_OUTPUT"
+      # zizmor: ignore[ref-version-mismatch] -- SHA is intentionally pinned; v1 tag has since moved
       - uses: anthropics/claude-code-action@e3ba649a81aa8af3ddca750d3ddc35901f29de19 # v1
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
