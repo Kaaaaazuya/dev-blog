@@ -24,11 +24,8 @@ export const includeScheduledPosts =
  */
 export function createBlogFilter() {
   return ({ data }: { data: { draft: boolean; pubDate: Date } }) => {
-    // dev/プレビューモードではすべて表示
-    if (includeDrafts) {
-      return true;
-    }
-    // 本番モード: draftと未来日付を除外
-    return !data.draft && data.pubDate <= new Date();
+    const showDraft = includeDrafts || !data.draft;
+    const showScheduled = includeScheduledPosts || data.pubDate <= new Date();
+    return showDraft && showScheduled;
   };
 }
