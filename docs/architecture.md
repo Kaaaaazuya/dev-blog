@@ -69,6 +69,7 @@ npmではなくpnpmを採用。理由と設定（`pnpm-workspace.yaml`）:
 | 実装上の注意          | `.astro` のHTMLコメントは本番出力に残る。TODOはfrontmatter側にJSコメントで書く                                                                                                                                                                                                                                                                                        |
 | アクセス解析          | Cloudflare Web Analytics（無料・Cookieレス）に決定。Workers静的アセット配信のため手動ビーコン方式（Pages自動注入は不可）。`BaseLayout.astro` に env ゲート付きで埋め込み済み。トークン `PUBLIC_CF_BEACON_TOKEN` はビルド時に必要なため GitHub Actions Variables に登録し `deploy.yml` の build ステップへ渡す。取得は Dashboard→Web Analytics→Add a site→Manual setup |
 | 問い合わせ方式        | Google Forms 埋め込みに決定。`contact.astro` に埋め込み枠を実装済み。フォーム作成・URL設定はTODOのまま（運用開始時に対応）                                                                                                                                                                                                                                            |
+| OG画像                | 記事ページごとにビルド時生成（`src/pages/og/[...id].png.ts`）。satori（HTML風ツリー→SVG）+ `@resvg/resvg-js`（SVG→PNG）。フォントはサイトのブランドフォントと合わせ `@fontsource/ibm-plex-sans-jp` のwoffを直接読み込み（japanese/latin/latin-extの3サブセット）。1200x630、`BaseLayout`の`image`propで`og:image`/`twitter:image`（`summary_large_image`）に反映      |
 
 ## セットアップ手順（残り）
 

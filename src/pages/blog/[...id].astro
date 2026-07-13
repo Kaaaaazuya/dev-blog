@@ -2,21 +2,53 @@
 import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import AdSlot from "../../components/AdSlot.astro";
+import TableOfContents from "../../components/TableOfContents.astro";
+import { createBlogFilter } from "../../lib/blog-filter";
+import { getSeriesNavigation, getRelatedPosts } from "../../lib/post-nav";
 
 export async function getStaticPaths() {
-  // 本番はdraft除外、devプレビューではdraftも表示する
-  const posts = await getCollection(
-    "blog",
-    ({ data }) => import.meta.env.DEV || !data.draft,
-  );
+  // 本番はdraft・未来日付除外、dev/PRプレビューではすべて表示する
+  const posts = await getCollection("blog", createBlogFilter());
   return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
+
+// Fetch all posts for navigation and related posts
+const allPosts = await getCollection("blog", createBlogFilter());
+
+const seriesNav = getSeriesNavigation(post, allPosts);
+const relatedPosts = getRelatedPosts(post, allPosts, 3);
+
+const AUTHOR_NAME = "kinakomochio";
+const SITE_URL = Astro.site ?? "https://kinakomochio.yk3kzy.workers.dev";
+
+// Build JSON-LD BlogPosting schema
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.pubDate.toISOString(),
+  dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
+  author: {
+    "@type": "Person",
+    name: AUTHOR_NAME,
+  },
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": new URL(`/blog/${post.id}/`, SITE_URL).toString(),
+  },
+};
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description}>
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  jsonLd={jsonLd}
+  image={`/og/${post.id}.png`}
+>
   <article>
     <p
       class="mb-[14px] font-['IBM_Plex_Mono',monospace] text-[12.5px] text-[var(--muted)]"
@@ -37,6 +69,19 @@ const { Content } = await render(post);
       <time datetime={post.data.pubDate.toISOString()}>
         {post.data.pubDate.toISOString().slice(0, 10)}
       </time>
+      {
+        post.data.updatedDate &&
+          post.data.updatedDate.getTime() !== post.data.pubDate.getTime() && (
+            <>
+              {" 公開（"}
+              <time datetime={post.data.updatedDate.toISOString()}>
+                {post.data.updatedDate.toISOString().slice(0, 10)}
+              </time>
+              {" 更新）"}
+            </>
+          )
+      }
+      {!post.data.updatedDate && " 公開"}
     </p>
     <h1 class="mb-4 text-[25px] leading-[1.65] font-bold tracking-[-0.01em]">
       {post.data.title}
@@ -53,11 +98,63 @@ const { Content } = await render(post);
       )
     }
 
+    <TableOfContents headings={headings} />
+
     <AdSlot slot="TODO-上部ユニットID" />
 
     <div class="prose">
       <Content />
     </div>
+
+    {/* Series Navigation */}
+    {
+      (seriesNav.prev || seriesNav.next) && (
+        <nav class="series-nav">
+          <div class="series-nav-label">同シリーズ</div>
+          <div class="series-nav-items">
+            {seriesNav.prev && (
+              <a
+                href={`/blog/${seriesNav.prev.id}`}
+                class="series-nav-link series-nav-prev"
+              >
+                <span class="nav-arrow">← 前の記事</span>
+                <span class="nav-title">{seriesNav.prev.data.title}</span>
+              </a>
+            )}
+            {seriesNav.next && (
+              <a
+                href={`/blog/${seriesNav.next.id}`}
+                class="series-nav-link series-nav-next"
+              >
+                <span class="nav-arrow">次の記事 →</span>
+                <span class="nav-title">{seriesNav.next.data.title}</span>
+              </a>
+            )}
+          </div>
+        </nav>
+      )
+    }
+
+    {/* Related Posts */}
+    {
+      relatedPosts.posts.length > 0 && (
+        <section class="related-posts">
+          <h3 class="related-posts-title">関連記事</h3>
+          <ul class="related-posts-list">
+            {relatedPosts.posts.map((relatedPost) => (
+              <li class="related-posts-item">
+                <a href={`/blog/${relatedPost.id}`} class="related-post-link">
+                  {relatedPost.data.title}
+                </a>
+                <span class="related-post-date">
+                  {relatedPost.data.pubDate.toISOString().slice(0, 10)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
 
     <AdSlot slot="TODO-下部ユニットID" />
   </article>
@@ -112,6 +209,26 @@ const { Content } = await render(post);
     font:
       13px/1.75 "IBM Plex Mono",
       monospace;
+    position: relative;
+  }
+  .prose :global(pre [data-copy-button]) {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 6px 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--accent);
+    font-size: 12px;
+    font-family: "IBM Plex Mono", monospace;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .prose :global(pre [data-copy-button]:hover) {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
   }
   .prose :global(code) {
     font-family: "IBM Plex Mono", monospace;
@@ -122,14 +239,222 @@ const { Content } = await render(post);
     border-radius: 5px;
     padding: 2px 6px;
   }
+
+  /* Series Navigation */
+  .series-nav {
+    margin: 40px 0 32px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+  }
+
+  .series-nav-label {
+    font-size: 12px;
+    font-family: "IBM Plex Mono", monospace;
+    color: var(--muted);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .series-nav-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .series-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+  }
+
+  .series-nav-link:hover {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+
+  .nav-arrow {
+    font-size: 12px;
+    font-family: "IBM Plex Mono", monospace;
+    color: var(--accent);
+  }
+
+  .nav-title {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 640px) {
+    .series-nav-items {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Related Posts */
+  .related-posts {
+    margin: 40px 0 32px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+  }
+
+  .related-posts-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 16px;
+    padding: 0;
+    color: var(--text);
+  }
+
+  .related-posts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .related-posts-item {
+    padding: 0;
+    margin: 0;
+  }
+
+  .related-post-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--accent);
+    transition: all 0.2s ease;
+  }
+
+  .related-post-link:hover {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+
+  .related-post-date {
+    font-size: 12px;
+    font-family: "IBM Plex Mono", monospace;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .prose :global(h2 a) {
+    color: inherit;
+    text-decoration: none;
+    opacity: 0;
+    margin-left: 8px;
+    padding: 0 4px;
+    transition: opacity 0.2s ease;
+  }
+  .prose :global(h2:hover a) {
+    opacity: 1;
+  }
+  .prose :global(h2 a)::before {
+    content: "#";
+    color: var(--muted);
+    font-weight: 600;
+  }
 </style>
 
 <script>
+  // コードブロックのコピーボタン機能
+  function initCopyButtons() {
+    const codeBlocks = document.querySelectorAll<HTMLPreElement>(
+      ".prose > pre:not(.mermaid)",
+    );
+    codeBlocks.forEach((pre) => {
+      if (pre.querySelector("[data-copy-button]")) return; // 既に追加済み
+
+      const button = document.createElement("button");
+      button.setAttribute("data-copy-button", "");
+      button.textContent = "Copy";
+      button.type = "button";
+
+      button.addEventListener("click", async () => {
+        const code = pre.textContent ?? "";
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalText = button.textContent;
+          button.textContent = "Copied!";
+          setTimeout(() => {
+            button.textContent = originalText;
+          }, 1500);
+        } catch (err) {
+          console.error("Failed to copy:", err);
+        }
+      });
+
+      pre.appendChild(button);
+    });
+  }
+
   // mermaid ブロックがあるページだけ動的import（チャンク分割されるので他ページに影響なし）
-  const blocks = document.querySelectorAll<HTMLElement>("pre.mermaid");
-  if (blocks.length > 0) {
+  async function initMermaid() {
+    const blocks = document.querySelectorAll<HTMLElement>("pre.mermaid");
+    if (blocks.length === 0) return;
+
     const { default: mermaid } = await import("mermaid");
-    mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+
+    function getMermaidTheme(): "dark" | "neutral" {
+      const theme = document.documentElement.getAttribute("data-theme");
+      return theme === "dark" ? "dark" : "neutral";
+    }
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: getMermaidTheme(),
+    });
     await mermaid.run({ nodes: [...blocks] });
+
+    // テーマ切替時にmermaidを再レンダリング
+    const themeToggle = document.getElementById("theme-toggle");
+    if (themeToggle) {
+      themeToggle.addEventListener("click", async () => {
+        // theme切替が完了するのを待つ
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        const newTheme = getMermaidTheme();
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: newTheme,
+        });
+
+        // mermaidダイアグラムを再レンダリング
+        blocks.forEach((block) => {
+          block.removeAttribute("data-processed");
+        });
+        await mermaid.run({ nodes: [...blocks] });
+      });
+    }
+  }
+
+  // DOMContentLoaded時に初期化
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      initCopyButtons();
+      initMermaid();
+    });
+  } else {
+    initCopyButtons();
+    initMermaid();
   }
 </script>
