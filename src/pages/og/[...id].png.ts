@@ -4,7 +4,7 @@ import { Resvg } from "@resvg/resvg-js";
 import { includeDrafts } from "../../lib/blog-filter";
 import {
   createOgImageTemplate,
-  ogImageFonts,
+  getOgImageFonts,
   OG_IMAGE_WIDTH,
   OG_IMAGE_HEIGHT,
 } from "../../lib/og-image";
@@ -28,7 +28,11 @@ export async function GET({
       title: post.data.title,
       series: post.data.series,
     }),
-    { width: OG_IMAGE_WIDTH, height: OG_IMAGE_HEIGHT, fonts: ogImageFonts },
+    {
+      width: OG_IMAGE_WIDTH,
+      height: OG_IMAGE_HEIGHT,
+      fonts: getOgImageFonts(),
+    },
   );
   const png = new Resvg(svg).render().asPng();
 

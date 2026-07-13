@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { createOgImageTemplate, ogImageFonts } from "./og-image";
+import { createOgImageTemplate, getOgImageFonts } from "./og-image";
 
 describe("createOgImageTemplate", () => {
   it("includes the title text in the template tree", () => {
@@ -22,11 +22,16 @@ describe("createOgImageTemplate", () => {
   });
 });
 
-describe("ogImageFonts", () => {
+describe("getOgImageFonts", () => {
   it("loads non-empty binary data for every registered subset", () => {
-    expect(ogImageFonts.length).toBeGreaterThan(0);
-    for (const font of ogImageFonts) {
+    const fonts = getOgImageFonts();
+    expect(fonts.length).toBeGreaterThan(0);
+    for (const font of fonts) {
       expect(font.data.byteLength).toBeGreaterThan(0);
     }
+  });
+
+  it("caches the result across calls", () => {
+    expect(getOgImageFonts()).toBe(getOgImageFonts());
   });
 });

@@ -15,38 +15,50 @@ const FONT_FAMILY = "IBM Plex Sans JP";
 
 // 日本語タイトルには漢字・かな(japanese) + 英数字(latin) + 全角記号など(latin-ext) の
 // 3サブセットが必要。satoriは同名フォントを複数登録すると欠けたグリフを次の候補で補う。
-export const ogImageFonts = [
-  {
-    name: FONT_FAMILY,
-    weight: 700 as const,
-    style: "normal" as const,
-    data: loadFont("ibm-plex-sans-jp-japanese-700-normal.woff"),
-  },
-  {
-    name: FONT_FAMILY,
-    weight: 700 as const,
-    style: "normal" as const,
-    data: loadFont("ibm-plex-sans-jp-latin-700-normal.woff"),
-  },
-  {
-    name: FONT_FAMILY,
-    weight: 700 as const,
-    style: "normal" as const,
-    data: loadFont("ibm-plex-sans-jp-latin-ext-700-normal.woff"),
-  },
-  {
-    name: FONT_FAMILY,
-    weight: 400 as const,
-    style: "normal" as const,
-    data: loadFont("ibm-plex-sans-jp-japanese-400-normal.woff"),
-  },
-  {
-    name: FONT_FAMILY,
-    weight: 400 as const,
-    style: "normal" as const,
-    data: loadFont("ibm-plex-sans-jp-latin-400-normal.woff"),
-  },
-];
+let cachedFonts: ReturnType<typeof loadOgImageFonts> | null = null;
+
+function loadOgImageFonts() {
+  return [
+    {
+      name: FONT_FAMILY,
+      weight: 700 as const,
+      style: "normal" as const,
+      data: loadFont("ibm-plex-sans-jp-japanese-700-normal.woff"),
+    },
+    {
+      name: FONT_FAMILY,
+      weight: 700 as const,
+      style: "normal" as const,
+      data: loadFont("ibm-plex-sans-jp-latin-700-normal.woff"),
+    },
+    {
+      name: FONT_FAMILY,
+      weight: 700 as const,
+      style: "normal" as const,
+      data: loadFont("ibm-plex-sans-jp-latin-ext-700-normal.woff"),
+    },
+    {
+      name: FONT_FAMILY,
+      weight: 400 as const,
+      style: "normal" as const,
+      data: loadFont("ibm-plex-sans-jp-japanese-400-normal.woff"),
+    },
+    {
+      name: FONT_FAMILY,
+      weight: 400 as const,
+      style: "normal" as const,
+      data: loadFont("ibm-plex-sans-jp-latin-400-normal.woff"),
+    },
+  ];
+}
+
+// モジュール読み込み時ではなく初回呼び出し時にフォントファイルを読み込み、以降はキャッシュを返す
+export function getOgImageFonts() {
+  if (!cachedFonts) {
+    cachedFonts = loadOgImageFonts();
+  }
+  return cachedFonts;
+}
 
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
