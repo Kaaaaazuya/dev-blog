@@ -24,6 +24,10 @@ const {
 const SITE_NAME = "kinakomochio.dev"; // 仮。正式決定したら変更
 const { pathname } = Astro.url;
 const canonicalURL = new URL(pathname, Astro.site ?? Astro.url);
+// og:image/twitter:imageは仕様上絶対URLが必須なため、相対パスで渡されても正規化する
+const ogImageURL = image
+  ? new URL(image, Astro.site ?? Astro.url).toString()
+  : undefined;
 ---
 
 <!doctype html>
@@ -40,16 +44,16 @@ const canonicalURL = new URL(pathname, Astro.site ?? Astro.url);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:site_name" content={SITE_NAME} />
-    {image && <meta property="og:image" content={image} />}
-    {image && <meta property="og:image:width" content="1200" />}
-    {image && <meta property="og:image:height" content="630" />}
+    {ogImageURL && <meta property="og:image" content={ogImageURL} />}
+    {ogImageURL && <meta property="og:image:width" content="1200" />}
+    {ogImageURL && <meta property="og:image:height" content="630" />}
     <meta
       name="twitter:card"
-      content={image ? "summary_large_image" : "summary"}
+      content={ogImageURL ? "summary_large_image" : "summary"}
     />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    {image && <meta name="twitter:image" content={image} />}
+    {ogImageURL && <meta name="twitter:image" content={ogImageURL} />}
     {
       jsonLd && (
         <script
