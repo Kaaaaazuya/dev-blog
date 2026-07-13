@@ -85,7 +85,6 @@ export function createOgImageTemplate({
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
         padding: "64px",
         backgroundColor: COLORS.bg,
         fontFamily: FONT_FAMILY,
@@ -96,6 +95,7 @@ export function createOgImageTemplate({
           props: {
             style: {
               display: "flex",
+              flexShrink: 0,
               alignItems: "center",
               gap: "12px",
               fontSize: 24,
@@ -125,6 +125,9 @@ export function createOgImageTemplate({
             style: {
               display: "flex",
               flexDirection: "column",
+              flexGrow: 1,
+              justifyContent: "flex-end",
+              overflow: "hidden",
               gap: "20px",
             },
             children: [
