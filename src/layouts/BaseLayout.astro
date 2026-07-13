@@ -12,16 +12,22 @@ interface Props {
   description?: string;
   robots?: string;
   jsonLd?: Record<string, unknown>;
+  image?: string;
 }
 const {
   title,
   description = "AIプロダクトの設計と実装を、作って学んだ記録",
   robots,
   jsonLd,
+  image,
 } = Astro.props;
 const SITE_NAME = "kinakomochio.dev"; // 仮。正式決定したら変更
 const { pathname } = Astro.url;
 const canonicalURL = new URL(pathname, Astro.site ?? Astro.url);
+// og:image/twitter:imageは仕様上絶対URLが必須なため、相対パスで渡されても正規化する
+const ogImageURL = image
+  ? new URL(image, Astro.site ?? Astro.url).toString()
+  : undefined;
 ---
 
 <!doctype html>
@@ -38,9 +44,22 @@ const canonicalURL = new URL(pathname, Astro.site ?? Astro.url);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:site_name" content={SITE_NAME} />
-    <meta name="twitter:card" content="summary" />
+    {
+      ogImageURL && (
+        <>
+          <meta property="og:image" content={ogImageURL} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+        </>
+      )
+    }
+    <meta
+      name="twitter:card"
+      content={ogImageURL ? "summary_large_image" : "summary"}
+    />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    {ogImageURL && <meta name="twitter:image" content={ogImageURL} />}
     {
       jsonLd && (
         <script
