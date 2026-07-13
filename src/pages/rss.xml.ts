@@ -3,9 +3,13 @@ import { getCollection } from "astro:content";
 import type { APIContext } from "astro";
 
 export async function GET(context: APIContext) {
-  const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
-    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-  );
+  // RSS feeds should only include published posts (not drafts, not future-dated)
+  const posts = (
+    await getCollection(
+      "blog",
+      ({ data }) => !data.draft && data.pubDate <= new Date(),
+    )
+  ).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
   return rss({
     title: "kinakomochio.dev", // 仮
     description: "AIプロダクトの設計と実装を、作って学んだ記録",

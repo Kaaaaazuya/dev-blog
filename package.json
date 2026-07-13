@@ -48,7 +48,7 @@
     "wrangler": "^4.107.1"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm exec lint-staged && gitleaks git --staged --redact --no-banner",
+    "pre-commit": "pnpm exec lint-staged && gitleaks protect --staged --redact --no-banner",
     "pre-push": "pnpm typecheck"
   },
   "lint-staged": {

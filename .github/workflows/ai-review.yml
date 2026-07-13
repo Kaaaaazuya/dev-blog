@@ -4,10 +4,6 @@ on:
   pull_request:
     types: [opened, labeled]
 
-permissions:
-  contents: read
-  pull-requests: write
-
 concurrency:
   group: ai-review-${{ github.event.pull_request.number }}
   cancel-in-progress: true
@@ -15,6 +11,9 @@ concurrency:
 jobs:
   detect:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     outputs:
       should_run: ${{ steps.detect.outputs.should_run }}
       files: ${{ steps.detect.outputs.files }}
@@ -22,6 +21,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
+          persist-credentials: false
       - id: detect
         env:
           EVENT_ACTION: ${{ github.event.action }}
@@ -75,6 +75,8 @@ jobs:
         perspective: [flame-risk, info-leak, seo]
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
       - id: prompt
         env:
           PERSPECTIVE: ${{ matrix.perspective }}
@@ -84,7 +86,8 @@ jobs:
             cat ".github/ai-review/prompts/${PERSPECTIVE}.md"
             echo 'PROMPT_EOF'
           } >> "$GITHUB_OUTPUT"
-      - uses: anthropics/claude-code-action@e3ba649a81aa8af3ddca750d3ddc35901f29de19 # v1
+      # SHA is intentionally pinned; v1 tag has since moved to a different commit
+      - uses: anthropics/claude-code-action@e3ba649a81aa8af3ddca750d3ddc35901f29de19 # zizmor: ignore[ref-version-mismatch]
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
