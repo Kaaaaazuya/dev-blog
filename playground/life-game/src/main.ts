@@ -26,6 +26,7 @@ let board: Board = randomBoard(GRID_SIZE, GRID_SIZE, DENSITY);
 let generation = 0;
 let running = false;
 let lastTick = 0;
+let rafId: number | null = null;
 
 function draw(): void {
   ctx.fillStyle = "#0b0f14";
@@ -58,13 +59,19 @@ function loop(timestamp: number): void {
     advance();
     lastTick = timestamp;
   }
-  requestAnimationFrame(loop);
+  rafId = requestAnimationFrame(loop);
 }
 
 toggleButton.addEventListener("click", () => {
   running = !running;
   toggleButton.textContent = running ? "⏸ 停止" : "▶ 再生";
-  if (running) requestAnimationFrame(loop);
+  if (running) {
+    lastTick = performance.now();
+    rafId = requestAnimationFrame(loop);
+  } else if (rafId !== null) {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
 });
 
 stepButton.addEventListener("click", () => advance());
