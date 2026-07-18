@@ -22,6 +22,8 @@ jobs:
           node-version: 22
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+        env:
+          PUBLIC_CF_BEACON_TOKEN: ${{ vars.PUBLIC_CF_BEACON_TOKEN }}
       - name: Deploy to Cloudflare Workers
         run: pnpm exec wrangler deploy
         env:

@@ -25,11 +25,9 @@ blog/
 │   ├── content/blog/       # 記事本体（Markdown）。draft: true はビルド対象外
 │   ├── layouts/BaseLayout.astro   # 共通レイアウト（AdSenseサイトタグはここに追加）
 │   ├── components/AdSlot.astro    # 広告スロット。ADS_ENABLED=false で全体OFF
-│   ├── lib/og-image.ts     # OGP画像のsatoriテンプレート・フォント読み込み
 │   └── pages/
 │       ├── index.astro     # 記事一覧
 │       ├── blog/[...id].astro  # 記事ページ（上下にAdSlot配置済み）
-│       ├── og/[...id].png.ts   # 記事ごとのOGP画像をビルド時に生成（satori→resvg-js）
 │       ├── privacy.astro   # プライバシーポリシー（AdSense審査に必須・文面TODO）
 │       ├── contact.astro   # 問い合わせ（方式TODO）
 │       └── about.astro     # 運営者情報
@@ -37,11 +35,9 @@ blog/
 ├── templates/              # 記事テンプレ（zenn-blogから移植済み）
 │   ├── article-template.md # frontmatterをAstro用に変更済み
 │   ├── outline-agent.md    # koto-log編の見出し例
-│   ├── outline-rag.md      # biblio-rag編の見出し例
-│   └── outline-claude-code.md  # Claude Code編の見出し例
+│   └── outline-rag.md      # biblio-rag編の見出し例
 └── docs/
     ├── architecture.md     # このファイル
-    ├── blog-strategy.md    # 方向性・2本柱・参考ブログ分析（2026年7月改訂）
     └── writing-guide.md    # 執筆規約（シリーズ計画表を含む）
 ```
 
@@ -56,24 +52,24 @@ npmではなくpnpmを採用。理由と設定（`pnpm-workspace.yaml`）:
 
 ## 決定事項
 
-| 項目                  | 決定                                                                                                                                                                                                                                                                                                                                                             |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ドメイン              | **kinakomochio.dev**（仮。取得時に確定。取得先はCloudflare Registrar推奨＝Workersと同一アカウントでDNS移管不要）                                                                                                                                                                                                                                                 |
-| デプロイ              | GitHub Actions（`.github/workflows/deploy.yml`）から `wrangler deploy`（`wrangler.toml`の`[assets]`設定で静的アセットを配信）でCloudflare Workersへデプロイ。`v*` タグのpushでのみ発火（mainへの通常pushではデプロイしない）                                                                                                                                     |
-| Workersプロジェクト名 | `kinakomochio`（暫定URL: `https://kinakomochio.yk3kzy.workers.dev`）。旧Cloudflare Pagesではなく、静的アセット配信のWorkersとして作成済み。独自ドメイン取得後にカスタムドメインとして追加                                                                                                                                                                        |
-| パッケージマネージャ  | pnpm（下記セクション参照）                                                                                                                                                                                                                                                                                                                                       |
-| mermaid               | remarkプラグインで `<pre class="mermaid">` に変換 → クライアント側でSVG化。mermaidはnpmでバージョン固定・バンドル（CDN不使用＝サプライチェーン対策）。ブロックがあるページのみ動的import                                                                                                                                                                         |
-| コードハイライト      | Astro標準（Shiki）                                                                                                                                                                                                                                                                                                                                               |
-| RSS                   | `@astrojs/rss`（`/rss.xml`）                                                                                                                                                                                                                                                                                                                                     |
-| CI                    | GitHub Actions で `pnpm build` チェック（`.github/workflows/ci.yml`）                                                                                                                                                                                                                                                                                            |
-| textlint              | 記事（`src/content/blog/**/*.md`）の表記ゆれ・文章校正をCIでチェック（`pnpm textlint`）。ルール: `textlint-rule-preset-ja-technical-writing` + `textlint-rule-prh`（表記ゆれ辞書: `prh.yml`）。設定は `.textlintrc.yml`                                                                                                                                          |
-| CI                    | GitHub Actions で `pnpm build` チェック・workflowファイルの構文検証（actionlint、digestピン留め）（`.github/workflows/ci.yml`）                                                                                                                                                                                                                                  |
-| AIレビュー            | 記事追加PRに claude-code-action で観点別レビュー（炎上リスク・情報漏洩・SEO）。matrix並列・non-blocking・`ai-review` ラベルで再実行（workflow: `.github/workflows/ai-review.yml`、プロンプト: `.github/ai-review/prompts/`）                                                                                                                                     |
-| Zenn連携              | **やらない**（本ブログに一本化。`zenn-blog/` の資産は移植済みで役目終了）                                                                                                                                                                                                                                                                                        |
-| 実装上の注意          | `.astro` のHTMLコメントは本番出力に残る。TODOはfrontmatter側にJSコメントで書く                                                                                                                                                                                                                                                                                   |
-| アクセス解析          | Cloudflare Web Analytics（無料・Cookieレス）に決定。プライバシーポリシーに記載済み。実際のタグ埋め込みはPages/Workers接続後にトークン取得してから対応                                                                                                                                                                                                            |
-| 問い合わせ方式        | Google Forms 埋め込みに決定。`contact.astro` に埋め込み枠を実装済み。フォーム作成・URL設定はTODOのまま（運用開始時に対応）                                                                                                                                                                                                                                       |
-| OG画像                | 記事ページごとにビルド時生成（`src/pages/og/[...id].png.ts`）。satori（HTML風ツリー→SVG）+ `@resvg/resvg-js`（SVG→PNG）。フォントはサイトのブランドフォントと合わせ `@fontsource/ibm-plex-sans-jp` のwoffを直接読み込み（japanese/latin/latin-extの3サブセット）。1200x630、`BaseLayout`の`image`propで`og:image`/`twitter:image`（`summary_large_image`）に反映 |
+| 項目                  | 決定                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ドメイン              | **kinakomochio.dev**（仮。取得時に確定。取得先はCloudflare Registrar推奨＝Workersと同一アカウントでDNS移管不要）                                                                                                                                                                                                                                                      |
+| デプロイ              | GitHub Actions（`.github/workflows/deploy.yml`）から `wrangler deploy`（`wrangler.toml`の`[assets]`設定で静的アセットを配信）でCloudflare Workersへデプロイ。`v*` タグのpushでのみ発火（mainへの通常pushではデプロイしない）                                                                                                                                          |
+| Workersプロジェクト名 | `kinakomochio`（暫定URL: `https://kinakomochio.yk3kzy.workers.dev`）。旧Cloudflare Pagesではなく、静的アセット配信のWorkersとして作成済み。独自ドメイン取得後にカスタムドメインとして追加                                                                                                                                                                             |
+| パッケージマネージャ  | pnpm（下記セクション参照）                                                                                                                                                                                                                                                                                                                                            |
+| mermaid               | remarkプラグインで `<pre class="mermaid">` に変換 → クライアント側でSVG化。mermaidはnpmでバージョン固定・バンドル（CDN不使用＝サプライチェーン対策）。ブロックがあるページのみ動的import                                                                                                                                                                              |
+| コードハイライト      | Astro標準（Shiki）                                                                                                                                                                                                                                                                                                                                                    |
+| RSS                   | `@astrojs/rss`（`/rss.xml`）                                                                                                                                                                                                                                                                                                                                          |
+| CI                    | GitHub Actions で `pnpm build` チェック（`.github/workflows/ci.yml`）                                                                                                                                                                                                                                                                                                 |
+| textlint              | 記事（`src/content/blog/**/*.md`）の表記ゆれ・文章校正をCIでチェック（`pnpm textlint`）。ルール: `textlint-rule-preset-ja-technical-writing` + `textlint-rule-prh`（表記ゆれ辞書: `prh.yml`）。設定は `.textlintrc.yml`                                                                                                                                               |
+| CI                    | GitHub Actions で `pnpm build` チェック・workflowファイルの構文検証（actionlint、digestピン留め）（`.github/workflows/ci.yml`）                                                                                                                                                                                                                                       |
+| AIレビュー            | 記事追加PRに claude-code-action で観点別レビュー（炎上リスク・情報漏洩・SEO）。matrix並列・non-blocking・`ai-review` ラベルで再実行（workflow: `.github/workflows/ai-review.yml`、プロンプト: `.github/ai-review/prompts/`）                                                                                                                                          |
+| Zenn連携              | **やらない**（本ブログに一本化。`zenn-blog/` の資産は移植済みで役目終了）                                                                                                                                                                                                                                                                                             |
+| 実装上の注意          | `.astro` のHTMLコメントは本番出力に残る。TODOはfrontmatter側にJSコメントで書く                                                                                                                                                                                                                                                                                        |
+| アクセス解析          | Cloudflare Web Analytics（無料・Cookieレス）に決定。Workers静的アセット配信のため手動ビーコン方式（Pages自動注入は不可）。`BaseLayout.astro` に env ゲート付きで埋め込み済み。トークン `PUBLIC_CF_BEACON_TOKEN` はビルド時に必要なため GitHub Actions Variables に登録し `deploy.yml` の build ステップへ渡す。取得は Dashboard→Web Analytics→Add a site→Manual setup |
+| 問い合わせ方式        | Google Forms 埋め込みに決定。`contact.astro` に埋め込み枠を実装済み。フォーム作成・URL設定はTODOのまま（運用開始時に対応）                                                                                                                                                                                                                                            |
+| OG画像                | 記事ページごとにビルド時生成（`src/pages/og/[...id].png.ts`）。satori（HTML風ツリー→SVG）+ `@resvg/resvg-js`（SVG→PNG）。フォントはサイトのブランドフォントと合わせ `@fontsource/ibm-plex-sans-jp` のwoffを直接読み込み（japanese/latin/latin-extの3サブセット）。1200x630、`BaseLayout`の`image`propで`og:image`/`twitter:image`（`summary_large_image`）に反映      |
 
 ## セットアップ手順（残り）
 
@@ -103,8 +99,9 @@ npmではなくpnpmを採用。理由と設定（`pnpm-workspace.yaml`）:
 
 ## 未決事項（残り）
 
-| 項目            | 候補・メモ                                 |
-| --------------- | ------------------------------------------ |
-| デザイン/テーマ | 現状素のCSS最小限。自作 or Astroテーマ導入 |
+| 項目            | 候補・メモ                                                                  |
+| --------------- | --------------------------------------------------------------------------- |
+| デザイン/テーマ | 現状素のCSS最小限。自作 or Astroテーマ導入                                  |
+| OG画像          | 自動生成（satori等）は後回しでよい。現状OGPはog:imageなしのテキストタグのみ |
 
 ドラフト生成スキルは `skills/write-draft/SKILL.md` に作成済み。`.claude/skills/` へ移すとClaude Code / Coworkが自動参照する（`git mv skills .claude/skills`）。
