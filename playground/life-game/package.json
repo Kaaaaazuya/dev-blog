@@ -1,0 +1,23 @@
+{
+  "name": "life-game-viteplus-trial",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vp dev",
+    "build": "vp build",
+    "preview": "vp preview",
+    "test": "vp test",
+    "lint": "vp lint",
+    "format": "vp format"
+  },
+  "devDependencies": {
+    "vite-plus": "^0.2.5"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.14.0",
+      "onFail": "download"
+    }
+  }
+}
