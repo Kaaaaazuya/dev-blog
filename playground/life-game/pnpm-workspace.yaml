@@ -1,0 +1,3 @@
+# playground/life-game を Vite+ / pnpm から見て独立したワークスペースルートにするための
+# マーカーファイル。ルートの pnpm-workspace.yaml（サプライチェーン対策設定）まで
+# 巻き込まないようにする。

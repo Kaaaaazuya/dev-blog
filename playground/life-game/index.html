@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ライフゲーム — Vite+ トライアル</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>ライフゲーム <span class="badge">Vite+ trial</span></h1>
+      <canvas id="board" width="600" height="600"></canvas>
+      <div class="controls">
+        <button id="toggle" type="button">▶ 再生</button>
+        <button id="step" type="button">1コマ進める</button>
+        <button id="random" type="button">ランダム配置</button>
+        <button id="clear" type="button">クリア</button>
+        <label>
+          速度
+          <input id="speed" type="range" min="1" max="30" value="10" />
+        </label>
+        <span id="gen">世代: 0 / 生存: 0</span>
+      </div>
+      <p class="hint">盤面をクリックするとセルの生死を切り替えられます。</p>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
